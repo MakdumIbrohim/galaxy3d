@@ -47,6 +47,11 @@ ShellRoot {
         id: powerMenu
     }
 
+    // Interactive Media Player Popup Flyout
+    MediaPopup {
+        id: mediaPopup
+    }
+
     // 3D Orbital App Launcher Overlay
     PanelWindow {
         id: launcherWindow
@@ -118,5 +123,13 @@ ShellRoot {
         function toggle(): void { powerMenu.visible = !powerMenu.visible; }
         function open(): void { powerMenu.visible = true; }
         function close(): void { powerMenu.visible = false; }
+    }
+
+    // IPC handler for Media Popup Flyout
+    IpcHandler {
+        target: "media"
+        function toggle(): void { mediaPopup.visible = !mediaPopup.visible; }
+        function open(): void { mediaPopup.visible = true; }
+        function close(): void { mediaPopup.visible = false; }
     }
 }

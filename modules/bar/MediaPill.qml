@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
 import Quickshell.Services.Mpris
 
 Rectangle {
@@ -28,42 +29,58 @@ Rectangle {
         anchors.rightMargin: 8
         spacing: 8
 
-        Rectangle {
-            width: 22
-            height: 22
-            radius: 11
-            color: "#181825"
-            clip: true
-
-            Image {
-                anchors.fill: parent
-                source: root.activePlayer && root.activePlayer.trackArtUrl ? root.activePlayer.trackArtUrl : ""
-                fillMode: Image.PreserveAspectCrop
-                visible: status === Image.Ready
-            }
-            Text {
-                anchors.centerIn: parent
-                text: ""
-                font.family: "Iosevka Nerd Font"
-                font.pixelSize: 11
-                color: "#89b4fa"
-                visible: !root.activePlayer || !root.activePlayer.trackArtUrl
-            }
-        }
-
-        Text {
+        Item {
             Layout.fillWidth: true
-            text: {
-                if (!root.activePlayer) return "No Media";
-                const title = root.activePlayer.trackTitle || "Unknown Track";
-                const artist = root.activePlayer.trackArtist ? (" - " + root.activePlayer.trackArtist) : "";
-                return title + artist;
+            Layout.fillHeight: true
+
+            RowLayout {
+                anchors.fill: parent
+                spacing: 8
+
+                Rectangle {
+                    width: 22
+                    height: 22
+                    radius: 11
+                    color: "#181825"
+                    clip: true
+
+                    Image {
+                        anchors.fill: parent
+                        source: root.activePlayer && root.activePlayer.trackArtUrl ? root.activePlayer.trackArtUrl : ""
+                        fillMode: Image.PreserveAspectCrop
+                        visible: status === Image.Ready
+                    }
+                    Text {
+                        anchors.centerIn: parent
+                        text: ""
+                        font.family: "Iosevka Nerd Font"
+                        font.pixelSize: 11
+                        color: "#89b4fa"
+                        visible: !root.activePlayer || !root.activePlayer.trackArtUrl
+                    }
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    text: {
+                        if (!root.activePlayer) return "No Media";
+                        const title = root.activePlayer.trackTitle || "Unknown Track";
+                        const artist = root.activePlayer.trackArtist ? (" - " + root.activePlayer.trackArtist) : "";
+                        return title + artist;
+                    }
+                    font.family: "JetBrains Mono"
+                    font.pixelSize: 11
+                    font.weight: Font.DemiBold
+                    color: "#cdd6f4"
+                    elide: Text.ElideRight
+                }
             }
-            font.family: "JetBrains Mono"
-            font.pixelSize: 11
-            font.weight: Font.DemiBold
-            color: "#cdd6f4"
-            elide: Text.ElideRight
+
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onClicked: Quickshell.execDetached(["qs", "-c", "galaxy3d", "ipc", "call", "media", "toggle"])
+            }
         }
 
         Text {
