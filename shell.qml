@@ -7,6 +7,7 @@ import "modules/bar"
 import "modules/launcher"
 import "modules/notifications"
 import "modules/settings"
+import "modules/osd"
 
 ShellRoot {
     id: root
@@ -27,6 +28,9 @@ ShellRoot {
 
     // Desktop Notifications
     NotificationPopup {}
+
+    // Audio & Brightness OSD Overlay
+    OSD {}
 
     // Satellite Network Scanner Panel (Triggered by Right-Click)
     NetworkPanel {
