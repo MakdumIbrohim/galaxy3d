@@ -32,6 +32,39 @@ Item {
 
     MatugenColors { id: theme }
 
+    // Spherical Atmosphere Glow Rings for Earth
+    Item {
+        x: earthBase.x
+        y: earthBase.y
+        width: earthBase.width
+        height: earthBase.height
+        z: -100001
+
+        Rectangle {
+            anchors.fill: parent
+            radius: width / 2
+            color: "transparent"
+            border.color: Qt.rgba(theme.blue.r, theme.blue.g, theme.blue.b, 0.35)
+            border.width: 14 * root.earthZoom
+        }
+        Rectangle {
+            anchors.fill: parent
+            anchors.margins: -18 * root.earthZoom
+            radius: width / 2
+            color: "transparent"
+            border.color: Qt.rgba(theme.sapphire.r, theme.sapphire.g, theme.sapphire.b, 0.18)
+            border.width: 25 * root.earthZoom
+        }
+        Rectangle {
+            anchors.fill: parent
+            anchors.margins: -45 * root.earthZoom
+            radius: width / 2
+            color: "transparent"
+            border.color: Qt.rgba(theme.blue.r, theme.blue.g, theme.blue.b, 0.08)
+            border.width: 45 * root.earthZoom
+        }
+    }
+
     Rectangle {
         id: earthBase
         width: 1350 * root.earthZoom

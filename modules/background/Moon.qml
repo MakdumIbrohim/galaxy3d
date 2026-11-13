@@ -335,38 +335,6 @@ PanelWindow {
             }
         }
 
-        Item {
-            x: earthSystem.x
-            y: earthSystem.y
-            width: earthSystem.width
-            height: earthSystem.height
-            z: -99999
-
-            Rectangle {
-                anchors.fill: parent
-                radius: width / 2
-                color: "transparent"
-                border.color: Qt.rgba(root.blue.r, root.blue.g, root.blue.b, 0.35)
-                border.width: 14 * root.zoomFactor
-            }
-            Rectangle {
-                anchors.fill: parent
-                anchors.margins: -18 * root.zoomFactor
-                radius: width / 2
-                color: "transparent"
-                border.color: Qt.rgba(root.sapphire.r, root.sapphire.g, root.sapphire.b, 0.18)
-                border.width: 25 * root.zoomFactor
-            }
-            Rectangle {
-                anchors.fill: parent
-                anchors.margins: -45 * root.zoomFactor
-                radius: width / 2
-                color: "transparent"
-                border.color: Qt.rgba(root.blue.r, root.blue.g, root.blue.b, 0.08)
-                border.width: 45 * root.zoomFactor
-            }
-        }
-
         Shape {
             id: orbitCurvePath
             anchors.fill: parent
