@@ -14,7 +14,7 @@ import "../../services"
 Item {
     id: window
 
-    property alias searchInput: searchInput
+    property alias searchInput: searchContainer.searchInput
     focus: true
 
     implicitWidth: Screen.width
@@ -200,11 +200,11 @@ Item {
         target: window
         function onVisibleChanged() {
             if (window.visible) {
-                searchInput.text    = "";
+                searchContainer.text    = "";
                 window.searchQuery  = "";
                 window.selectedAppIndex = -1;
                 window.sphereZoom   = 1.0;
-                searchInput.forceActiveFocus();
+                searchContainer.forceActiveFocus();
                 introPhaseAnim.restart();
             }
         }
@@ -358,7 +358,7 @@ Item {
                 lastX = mouse.x;
                 lastY = mouse.y;
             }
-            onClicked: searchInput.forceActiveFocus()
+            onClicked: searchContainer.forceActiveFocus()
         }
 
         Item {
@@ -371,269 +371,72 @@ Item {
                 id: appRepeater
                 model: appModel
 
-                delegate: Item {
-                    id: appNode
+                delegate: AppCard {
+                    proj: (window.projCache && window.projCache.length > index)
+                          ? window.projCache[index]
+                          : { x: 0, y: 0, z: 0 }
+                    sphereRadius: window.sphereRadius
+                    sphereZoom: window.sphereZoom
+                    searchQuery: window.searchQuery
+                    isSelected: index === window.selectedAppIndex
+                    appName: model.name
+                    appIcon: model.icon || ""
+                    appExec: model.exec || ""
+                    selectedAppName: window.selectedAppName
+                    selectedAppIcon: window.selectedAppIcon
 
-                    // Read pre-computed projection from the cache array.
-                    // The cache is a plain JS array; QML won't auto-bind to its
-                    // contents, so we use a property alias that updates whenever
-                    // projCache itself is reassigned (the whole array is replaced
-                    // on every cache rebuild, which triggers change notification).
-                    property var proj: (window.projCache && window.projCache.length > index)
-                                       ? window.projCache[index]
-                                       : { x: 0, y: 0, z: 0 }
-
-                    property real zoomFactor: 1.0 + (window.sphereZoom - 1.0) * 0.45
-
-                    x: (origin.width  / 2) + (proj.x * window.sphereRadius * zoomFactor) - width  / 2
-                    y: (origin.height / 2) + (proj.y * window.sphereRadius * zoomFactor) - height / 2
-
-                    z: Math.round(proj.z * 1000)
-
-                    property bool isMatch: {
-                        if (window.searchQuery === "") return true;
-                        let n = model.name.toLowerCase();
-                        let e = (model.exec || "").toLowerCase();
-                        return n.includes(window.searchQuery) || e.includes(window.searchQuery);
-                    }
-                    property bool isSelected: index === window.selectedAppIndex
-
-                    property real _hz: Math.max(0.0, Math.min(1.0, proj.z * 3.5))
-                    opacity: (window.searchQuery === "" ? (proj.z > -0.05 ? _hz : 0.0) : (isMatch ? 1.0 : 0.05))
-                    Behavior on opacity { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
-
-                    visible: (proj.z > -0.05) && (window.searchQuery === "" ? (opacity > 0.02) : isMatch)
-
-                    property real _baseScale: isMatch && window.searchQuery !== "" ? 1.25 : (0.75 + (Math.max(0.0, proj.z) * 0.35))
-                    scale: isSelected ? 1.4 : (_baseScale * ((nodeMa.containsMouse && !isSelected) ? 1.15 : 1.0))
-                    Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
-
-                    // Tilt angles — used only for the non-selected card face
-                    property real _xNorm: proj.x / (window.sphereRadius / window.s(310.5))
-                    property real _yNorm: proj.y / (window.sphereRadius / window.s(310.5))
-
-                    transform: [
-                        Rotation {
-                            axis { x: 1; y: 0; z: 0 }
-                            angle: appNode.isSelected ? 0 : -appNode._yNorm * 45
-                            origin.x: appNode.width  / 2
-                            origin.y: appNode.height / 2
-                        },
-                        Rotation {
-                            axis { x: 0; y: 1; z: 0 }
-                            angle: appNode.isSelected ? 0 : appNode._xNorm * 35
-                            origin.x: appNode.width  / 2
-                            origin.y: appNode.height / 2
-                        }
-                    ]
-
-                    width:  window._s74
-                    height: window._s104
-
-                    // ── Normal app card (hidden while selected) ───────────────
-                    Rectangle {
-                        anchors.fill: parent
-                        radius: window._s12
-                        color:  "transparent"
-                        border.color: nodeMa.containsMouse && !appNode.isSelected ? window.surface2 : "transparent"
-                        border.width: window._s2
-                        Behavior on color { ColorAnimation { duration: 200 } }
-
-                        // Completely skip rendering when satellite is shown
-                        visible: !appNode.isSelected
-
-                        ColumnLayout {
-                            anchors.fill: parent
-                            anchors.margins: window._s5
-                            spacing: window._s5
-
-                            Image {
-                                Layout.alignment: Qt.AlignHCenter
-                                Layout.preferredWidth:  window._s55
-                                Layout.preferredHeight: window._s55
-                                source: model.icon
-                                    ? (model.icon.startsWith("/") ? "file://" + model.icon : "image://icon/" + model.icon)
-                                    : "image://icon/application-x-executable"
-                                fillMode: Image.PreserveAspectFit
-                                asynchronous: true
-                                smooth: true
-                                // Cache decoded images — avoids re-decode on every
-                                // Repeater recycle pass.
-                                cache: true
-                            }
-
-                            Rectangle {
-                                Layout.fillWidth: true
-                                implicitHeight: labelText.implicitHeight + window._s4
-                                radius: window._s4
-                                color: Qt.rgba(window.crust.r, window.crust.g, window.crust.b, 0.60)
-
-                                Text {
-                                    id: labelText
-                                    anchors.fill: parent
-                                    anchors.leftMargin:  window._s3
-                                    anchors.rightMargin: window._s3
-                                    text: model.name
-                                    font.family: "JetBrains Mono"
-                                    font.pixelSize: window._s11
-                                    font.weight: Font.DemiBold
-                                    color: window.text
-                                    horizontalAlignment: Text.AlignHCenter
-                                    verticalAlignment:   Text.AlignVCenter
-                                    elide: Text.ElideRight
-                                }
-                            }
-                        }
-                    }
-
-                    Loader {
-                        id: satLoader
-                        anchors.centerIn: parent
-                        active: appNode.isSelected
-                        opacity: appNode.isSelected ? 1.0 : 0.0
-                        scale:   appNode.isSelected ? 1.5 : 0.4
-
-                        Behavior on opacity { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
-                        Behavior on scale   { NumberAnimation { duration: 450; easing.type: Easing.OutBack  } }
-
-                        sourceComponent: Component {
-                            SatelliteItem {
-                                appName: window.selectedAppName
-                                appIcon: window.selectedAppIcon
-                            }
-                        }
-                    }
-
-                    MouseArea {
-                        id: nodeMa
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: window.launchApp(model.name, model.exec)
-                    }
+                    onLaunchRequested: (name, exec) => window.launchApp(name, exec)
                 }
             }
         }
     }
 
-    Rectangle {
+    SearchBox {
         id: searchContainer
-        width:  window.s(560)
-        height: window._s56
         anchors.bottom: parent.bottom
         anchors.bottomMargin: window._s63
         anchors.horizontalCenter: parent.horizontalCenter
+        introPhase: window.introPhase
 
-        radius: window._s28
-        color: Qt.rgba(window.mantle.r, window.mantle.g, window.mantle.b, 0.92)
-        border.color: searchInput.activeFocus ? window.mauve : window.surface1
-        border.width: window.s(1.5)
+        onSearchModified: query => window.handleSearch(query)
 
-        opacity: window.introPhase
-        transform: Translate { y: (1 - window.introPhase) * window._s40 }
-        Behavior on border.color { ColorAnimation { duration: 200 } }
-
-        // layer.enabled only when the shadow actually matters (saves an FBO
-        // on every frame when the bar is offscreen / fading in).
-        layer.enabled: window.introPhase > 0.01
-        layer.effect: MultiEffect {
-            shadowEnabled: true
-            shadowColor: "#000000"
-            shadowOpacity: 0.4
-            shadowBlur: 1.5
-            shadowVerticalOffset: window._s4
-        }
-
-        RowLayout {
-            anchors.fill: parent
-            anchors.leftMargin:  window._s20
-            anchors.rightMargin: window._s20
-            spacing: window._s12
-
-            Text {
-                text: ""
-                font.family: "Iosevka Nerd Font"
-                font.pixelSize: window._s18
-                color: searchInput.activeFocus ? window.mauve : window.subtext0
-                Behavior on color { ColorAnimation { duration: 150 } }
-            }
-
-            TextField {
-                id: searchInput
-                property alias textInput: searchInput
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                background: Item {}
-                color: window.text
-                font.family: "JetBrains Mono"
-                font.pixelSize: window._s15
-                font.weight: Font.Medium
-                selectByMouse: true
-
-                placeholderText: "Search applications..."
-                placeholderTextColor: window.overlay0
-                verticalAlignment: TextInput.AlignVCenter
-
-                onTextChanged: window.handleSearch(text)
-
-                Keys.onDownPressed: {
-                    for (let i = window.selectedAppIndex + 1; i < appModel.count; i++) {
-                        if (appModel.get(i).name.toLowerCase().includes(window.searchQuery)) {
-                            window.selectedAppIndex = i;
-                            window.selectedAppName  = appModel.get(i).name;
-                            window.selectedAppIcon  = appModel.get(i).icon || "";
-                            window.selectedAppExec  = appModel.get(i).exec || "";
-                            window.centerOnApp(i);
-                            window.sphereZoom = 1.65;
-                            break;
-                        }
-                    }
-                    event.accepted = true;
-                }
-                Keys.onUpPressed: {
-                    for (let i = window.selectedAppIndex - 1; i >= 0; i--) {
-                        if (appModel.get(i).name.toLowerCase().includes(window.searchQuery)) {
-                            window.selectedAppIndex = i;
-                            window.selectedAppName  = appModel.get(i).name;
-                            window.selectedAppIcon  = appModel.get(i).icon || "";
-                            window.selectedAppExec  = appModel.get(i).exec || "";
-                            window.centerOnApp(i);
-                            window.sphereZoom = 1.65;
-                            break;
-                        }
-                    }
-                    event.accepted = true;
-                }
-                Keys.onReturnPressed: {
-                    if (window.selectedAppIndex >= 0 && window.selectedAppIndex < appModel.count) {
-                        window.launchApp(
-                            appModel.get(window.selectedAppIndex).name,
-                            appModel.get(window.selectedAppIndex).exec
-                        );
-                    }
-                    event.accepted = true;
-                }
-                Keys.onEscapePressed: {
-                    closeSequence.start();
-                    event.accepted = true;
-                }
-            }
-
-            Text {
-                visible: searchInput.text.length > 0
-                text: ""
-                font.family: "Iosevka Nerd Font"
-                font.pixelSize: window._s16
-                color: window.subtext0
-                MouseArea {
-                    anchors.fill: parent
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: {
-                        searchInput.text = "";
-                        searchInput.forceActiveFocus();
-                    }
+        onDownPressed: {
+            for (let i = window.selectedAppIndex + 1; i < appModel.count; i++) {
+                if (appModel.get(i).name.toLowerCase().includes(window.searchQuery)) {
+                    window.selectedAppIndex = i;
+                    window.selectedAppName  = appModel.get(i).name;
+                    window.selectedAppIcon  = appModel.get(i).icon || "";
+                    window.selectedAppExec  = appModel.get(i).exec || "";
+                    window.centerOnApp(i);
+                    window.sphereZoom = 1.65;
+                    break;
                 }
             }
         }
+
+        onUpPressed: {
+            for (let i = window.selectedAppIndex - 1; i >= 0; i--) {
+                if (appModel.get(i).name.toLowerCase().includes(window.searchQuery)) {
+                    window.selectedAppIndex = i;
+                    window.selectedAppName  = appModel.get(i).name;
+                    window.selectedAppIcon  = appModel.get(i).icon || "";
+                    window.selectedAppExec  = appModel.get(i).exec || "";
+                    window.centerOnApp(i);
+                    window.sphereZoom = 1.65;
+                    break;
+                }
+            }
+        }
+
+        onReturnPressed: {
+            if (window.selectedAppIndex >= 0 && window.selectedAppIndex < appModel.count) {
+                window.launchApp(
+                    appModel.get(window.selectedAppIndex).name,
+                    appModel.get(window.selectedAppIndex).exec
+                );
+            }
+        }
+
+        onEscapePressed: closeSequence.start()
     }
 }
