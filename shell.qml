@@ -20,6 +20,9 @@ ShellRoot {
     // Sci-Fi Glass Top Bar (Media player, Workspaces, Clock, Status)
     TopBar {}
 
+    // Desktop Notifications
+    Notifications {}
+
     // 3D Orbital App Launcher Overlay
     PanelWindow {
         id: launcherWindow
