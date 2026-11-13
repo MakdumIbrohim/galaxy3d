@@ -6,6 +6,7 @@ import "modules/background"
 import "modules/bar"
 import "modules/launcher"
 import "modules/notifications"
+import "modules/settings"
 
 ShellRoot {
     id: root
@@ -26,6 +27,16 @@ ShellRoot {
 
     // Desktop Notifications
     NotificationPopup {}
+
+    // Satellite Network Scanner Panel (Triggered by Right-Click)
+    NetworkPanel {
+        id: networkPanel
+    }
+
+    // Full Shell Settings Window
+    SettingsWindow {
+        id: settingsWin
+    }
 
     // 3D Orbital App Launcher Overlay
     PanelWindow {
@@ -74,5 +85,21 @@ ShellRoot {
             launcherContent.searchInput.forceActiveFocus();
         }
         function close(): void { launcherWindow.visible = false; }
+    }
+
+    // IPC handler for Satellite / Wi-Fi Network Panel
+    IpcHandler {
+        target: "network"
+        function toggle(): void { networkPanel.visible = !networkPanel.visible; }
+        function open(): void { networkPanel.visible = true; }
+        function close(): void { networkPanel.visible = false; }
+    }
+
+    // IPC handler for Shell Settings Window
+    IpcHandler {
+        target: "settings"
+        function toggle(): void { settingsWin.visible = !settingsWin.visible; }
+        function open(): void { settingsWin.visible = true; }
+        function close(): void { settingsWin.visible = false; }
     }
 }

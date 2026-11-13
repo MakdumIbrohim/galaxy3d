@@ -234,7 +234,20 @@ Item {
                             elide: Text.ElideRight; width: 52; anchors.verticalCenter: parent.verticalCenter
                         }
                     }
-                    MouseArea { id: wifiSatPillMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: Quickshell.execDetached(["nmcli", "radio", "wifi", sysInfoSatellite.isWifiOn ? "off" : "on"]) }
+                    MouseArea {
+                        id: wifiSatPillMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        acceptedButtons: Qt.LeftButton | Qt.RightButton
+                        onClicked: mouse => {
+                            if (mouse.button === Qt.RightButton) {
+                                Quickshell.execDetached(["qs", "-c", "galaxy3d", "ipc", "call", "network", "toggle"]);
+                            } else {
+                                Quickshell.execDetached(["nmcli", "radio", "wifi", sysInfoSatellite.isWifiOn ? "off" : "on"]);
+                            }
+                        }
+                    }
                 }
 
                 Rectangle {
