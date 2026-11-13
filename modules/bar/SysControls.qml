@@ -165,4 +165,27 @@ RowLayout {
             }
         }
     }
+
+    Rectangle {
+        height: 34
+        width: 34
+        radius: 17
+        color: Qt.rgba(0.08, 0.08, 0.12, 0.85)
+        border.color: Qt.rgba(1, 1, 1, 0.15)
+        border.width: 1
+
+        Text {
+            anchors.centerIn: parent
+            text: ""
+            font.family: "Iosevka Nerd Font"
+            font.pixelSize: 13
+            color: "#f38ba8"
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: Quickshell.execDetached(["qs", "-c", "galaxy3d", "ipc", "call", "power", "toggle"])
+        }
+    }
 }

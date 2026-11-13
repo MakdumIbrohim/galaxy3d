@@ -42,6 +42,11 @@ ShellRoot {
         id: settingsWin
     }
 
+    // Cosmic Power & Session Menu
+    PowerMenu {
+        id: powerMenu
+    }
+
     // 3D Orbital App Launcher Overlay
     PanelWindow {
         id: launcherWindow
@@ -105,5 +110,13 @@ ShellRoot {
         function toggle(): void { settingsWin.visible = !settingsWin.visible; }
         function open(): void { settingsWin.visible = true; }
         function close(): void { settingsWin.visible = false; }
+    }
+
+    // IPC handler for Power Menu
+    IpcHandler {
+        target: "power"
+        function toggle(): void { powerMenu.visible = !powerMenu.visible; }
+        function open(): void { powerMenu.visible = true; }
+        function close(): void { powerMenu.visible = false; }
     }
 }
