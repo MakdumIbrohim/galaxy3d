@@ -2,6 +2,10 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
+import "modules/background"
+import "modules/bar"
+import "modules/launcher"
+import "modules/notifications"
 
 ShellRoot {
     id: root
@@ -21,7 +25,7 @@ ShellRoot {
     TopBar {}
 
     // Desktop Notifications
-    Notifications {}
+    NotificationPopup {}
 
     // 3D Orbital App Launcher Overlay
     PanelWindow {

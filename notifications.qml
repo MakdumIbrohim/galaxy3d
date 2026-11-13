@@ -1,3 +1,0 @@
-import "modules/notifications"
-
-NotificationPopup {}

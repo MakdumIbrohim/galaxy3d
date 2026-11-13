@@ -7,7 +7,6 @@ import QtQuick.Controls
 import Quickshell
 import Quickshell.Io
 import "."
-import "../"
 import "../../theme"
 import "../../services"
 
@@ -232,7 +231,7 @@ Item {
     Process {
         id: appFetcher
         running: true
-        command: ["python3", paths.qsDir + "/app_fetcher.py"]
+        command: ["python3", paths.qsDir + "/services/app_fetcher.py"]
         stdout: StdioCollector {
             onStreamFinished: {
                 try {
