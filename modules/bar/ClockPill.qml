@@ -21,7 +21,7 @@ Rectangle {
     Process {
         id: weatherBarPoller
         running: true
-        command: ["python3", paths.qsDir + "/services/weather.py", "--current"]
+        command: [paths.qsDir + "/services/galaxy3d-helper", "weather", "--current"]
         stdout: StdioCollector {
             onStreamFinished: {
                 let lines = this.text.trim().split("\n");

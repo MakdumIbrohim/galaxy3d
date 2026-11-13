@@ -231,7 +231,7 @@ Item {
     Process {
         id: appFetcher
         running: true
-        command: ["python3", paths.qsDir + "/services/app_fetcher.py"]
+        command: [paths.qsDir + "/services/galaxy3d-helper", "apps"]
         stdout: StdioCollector {
             onStreamFinished: {
                 try {

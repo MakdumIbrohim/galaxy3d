@@ -65,7 +65,7 @@ Item {
 
     Process {
         id: weatherPoller
-        command: ["python3", paths.qsDir + "/services/weather.py"]
+        command: [paths.qsDir + "/services/galaxy3d-helper", "weather"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
