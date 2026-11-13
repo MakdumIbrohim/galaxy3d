@@ -1,7 +1,6 @@
 import QtQuick
 import Quickshell
 import "../../../theme"
-import "../../../services"
 
 Item {
     id: sysInfoSatellite
@@ -35,7 +34,6 @@ Item {
     property string batPercent: "100%"
 
     MatugenColors { id: theme }
-    Caching { id: paths }
 
     x: (centerWidth / 2) + (proj.x * sphereRadius) - width / 2
     y: (centerHeight / 2) + (proj.y * sphereRadius) - height / 2
@@ -201,7 +199,7 @@ Item {
                         Text { text: sysInfoSatellite.volIcon; font.family: "Iosevka Nerd Font"; font.pixelSize: 11; color: sysInfoSatellite.isSoundActive ? theme.base : theme.subtext0; anchors.verticalCenter: parent.verticalCenter }
                         Text { text: sysInfoSatellite.volPercent; font.family: "JetBrains Mono"; font.pixelSize: 10; font.weight: Font.Black; color: sysInfoSatellite.isSoundActive ? theme.base : theme.text; anchors.verticalCenter: parent.verticalCenter }
                     }
-                    MouseArea { id: volPillMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: Quickshell.execDetached(["bash", "-c", paths.serpantinumDir + "/scripts/qs_manager.sh toggle volume"]) }
+                    MouseArea { id: volPillMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: Quickshell.execDetached(["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"]) }
                 }
 
                 Rectangle {
@@ -236,7 +234,7 @@ Item {
                             elide: Text.ElideRight; width: 52; anchors.verticalCenter: parent.verticalCenter
                         }
                     }
-                    MouseArea { id: wifiSatPillMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: Quickshell.execDetached(["bash", "-c", paths.serpantinumDir + "/scripts/qs_manager.sh toggle network wifi"]) }
+                    MouseArea { id: wifiSatPillMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: Quickshell.execDetached(["nmcli", "radio", "wifi", sysInfoSatellite.isWifiOn ? "off" : "on"]) }
                 }
 
                 Rectangle {
@@ -263,7 +261,7 @@ Item {
                         Text { text: sysInfoSatellite.btIcon; font.family: "Iosevka Nerd Font"; font.pixelSize: 11; color: sysInfoSatellite.isBtOn ? theme.base : theme.subtext0; anchors.verticalCenter: parent.verticalCenter }
                         Text { text: sysInfoSatellite.isBtOn ? (sysInfoSatellite.btDevice !== "" ? sysInfoSatellite.btDevice : "On") : "Off"; font.family: "JetBrains Mono"; font.pixelSize: 10; font.weight: Font.Black; color: sysInfoSatellite.isBtOn ? theme.base : theme.text; elide: Text.ElideRight; width: 52; anchors.verticalCenter: parent.verticalCenter }
                     }
-                    MouseArea { id: btSatPillMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: Quickshell.execDetached(["bash", "-c", paths.serpantinumDir + "/scripts/qs_manager.sh toggle network bt"]) }
+                    MouseArea { id: btSatPillMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: Quickshell.execDetached(["bluetoothctl", "power", sysInfoSatellite.isBtOn ? "off" : "on"]) }
                 }
 
                 Rectangle {
@@ -287,7 +285,7 @@ Item {
                         Text { text: sysInfoSatellite.isDesktop ? "" : sysInfoSatellite.batIcon; font.family: "Iosevka Nerd Font"; font.pixelSize: sysInfoSatellite.isDesktop ? 13 : 11; color: theme.base; anchors.verticalCenter: parent.verticalCenter }
                         Text { text: sysInfoSatellite.batPercent; font.family: "JetBrains Mono"; font.pixelSize: 10; font.weight: Font.Black; color: theme.base; anchors.verticalCenter: parent.verticalCenter }
                     }
-                    MouseArea { id: batSatPillMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: Quickshell.execDetached(["bash", "-c", paths.serpantinumDir + "/scripts/qs_manager.sh toggle battery"]) }
+                    MouseArea { id: batSatPillMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: Quickshell.execDetached(["notify-send", "Power Status", "Battery: " + sysInfoSatellite.batPercent]) }
                 }
 
                 Rectangle {
@@ -304,7 +302,7 @@ Item {
                         Text { text: "󰂚"; font.family: "Iosevka Nerd Font"; font.pixelSize: 11; color: theme.overlay0; anchors.verticalCenter: parent.verticalCenter }
                         Text { text: "Notifs"; font.family: "JetBrains Mono"; font.pixelSize: 10; font.weight: Font.Black; color: theme.text; anchors.verticalCenter: parent.verticalCenter }
                     }
-                    MouseArea { id: notifSatPillMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: Quickshell.execDetached(["bash", "-c", paths.serpantinumDir + "/scripts/qs_manager.sh toggle notifications"]) }
+                    MouseArea { id: notifSatPillMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: Quickshell.execDetached(["notify-send", "Galaxy3D", "Notifications overlay ready"]) }
                 }
             }
         }

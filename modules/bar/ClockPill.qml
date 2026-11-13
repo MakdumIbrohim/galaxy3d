@@ -1,5 +1,8 @@
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
+import Quickshell.Io
+import "../../services"
 
 Rectangle {
     id: root
@@ -9,6 +12,33 @@ Rectangle {
     color: Qt.rgba(0.08, 0.08, 0.12, 0.85)
     border.color: Qt.rgba(1, 1, 1, 0.15)
     border.width: 1
+
+    Caching { id: paths }
+
+    property string weatherDisplay: "31°"
+    property string weatherIcon: "󰖐"
+
+    Process {
+        id: weatherBarPoller
+        running: true
+        command: ["python3", paths.qsDir + "/services/weather.py", "--current"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                let lines = this.text.trim().split("\n");
+                if (lines.length >= 2) {
+                    root.weatherIcon = lines[0];
+                    root.weatherDisplay = lines[1];
+                }
+            }
+        }
+    }
+
+    Timer {
+        interval: 600000
+        running: true
+        repeat: true
+        onTriggered: { weatherBarPoller.running = false; weatherBarPoller.running = true; }
+    }
 
     RowLayout {
         id: centerRow
@@ -44,7 +74,7 @@ Rectangle {
         Rectangle { width: 1; height: 14; color: Qt.rgba(1, 1, 1, 0.2) }
 
         Text {
-            text: " 31.5°C"
+            text: root.weatherIcon + " " + root.weatherDisplay
             font.family: "JetBrains Mono"
             font.pixelSize: 11
             color: "#89b4fa"

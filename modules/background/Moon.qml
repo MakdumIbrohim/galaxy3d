@@ -467,7 +467,6 @@ PanelWindow {
                 centerWidth: worldCenter.width
                 centerHeight: worldCenter.height
                 independentCometAngle: root.independentCometAngle
-                workspacesModel: pollers.workspacesModel
             }
 
             SysInfoSatellite {
@@ -506,12 +505,10 @@ PanelWindow {
                 sphereRadius: root.sphereRadius
                 satelliteZoom: root.satelliteZoom
                 isSearchMode: root.isSearchMode
-                isMusicActive: pollers.isMusicActive
                 pressed: sceneMouse.pressed
                 centerWidth: worldCenter.width
                 centerHeight: worldCenter.height
                 independentCometAngle: root.independentCometAngle
-                musicData: pollers.musicData
             }
 
             EasterEggSatellite {

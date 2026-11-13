@@ -1,7 +1,7 @@
 import QtQuick
 import Quickshell
+import Quickshell.Hyprland
 import "../../../theme"
-import "../../../services"
 
 Item {
     id: telemetrySatellite
@@ -16,10 +16,8 @@ Item {
     property real centerWidth: parent ? parent.width : 520
     property real centerHeight: parent ? parent.height : 520
     property real independentCometAngle: 0
-    property var workspacesModel
 
     MatugenColors { id: theme }
-    Caching { id: paths }
 
     x: (centerWidth / 2) + (proj.x * sphereRadius) - width / 2
     y: (centerHeight / 2) + (proj.y * sphereRadius) - height / 2
@@ -152,20 +150,28 @@ Item {
                     columns: 4; spacing: 4
 
                     Repeater {
-                        model: telemetrySatellite.workspacesModel
+                        model: 8
                         delegate: Rectangle {
-                            width: 22; height: 18; radius: 4
-                            property string stateLabel: model.wsState
-                            property string wsName:     model.wsId
+                            id: wsBlock
+                            readonly property int wsId: index + 1
+                            readonly property bool isActive: Hyprland.focusedWorkspace && Hyprland.focusedWorkspace.id === wsId
+                            readonly property bool isOccupied: {
+                                const list = Hyprland.workspaces.values;
+                                for (let i = 0; i < list.length; i++) {
+                                    if (list[i].id === wsId) return true;
+                                }
+                                return false;
+                            }
 
-                            color: stateLabel === "active"
+                            width: 22; height: 18; radius: 4
+                            color: isActive
                                 ? theme.mauve
-                                : (stateLabel === "occupied"
+                                : (isOccupied
                                     ? Qt.rgba(theme.text.r, theme.text.g, theme.text.b, 0.12)
                                     : "transparent")
-                            border.color: stateLabel === "active"
+                            border.color: isActive
                                 ? "transparent"
-                                : (stateLabel === "occupied"
+                                : (isOccupied
                                     ? Qt.rgba(theme.text.r, theme.text.g, theme.text.b, 0.3)
                                     : Qt.rgba(theme.overlay0.r, theme.overlay0.g, theme.overlay0.b, 0.2))
                             border.width: 1
@@ -173,23 +179,23 @@ Item {
                             Behavior on color        { ColorAnimation { duration: 120 } }
                             Behavior on border.color { ColorAnimation { duration: 120 } }
 
-                            scale: wsPressArea.pressed ? 0.88 : (wsPressArea.containsMouse && stateLabel !== "active" ? 1.12 : 1.0)
+                            scale: wsPressArea.pressed ? 0.88 : (wsPressArea.containsMouse && !isActive ? 1.12 : 1.0)
                             Behavior on scale { NumberAnimation { duration: 180; easing.type: Easing.OutBack; easing.overshoot: 2.0 } }
 
                             Text {
                                 anchors.centerIn: parent
-                                text: wsName
+                                text: wsId.toString()
                                 font.family: "JetBrains Mono"; font.pixelSize: 10
-                                font.weight: stateLabel === "active" ? Font.Bold : Font.Normal
-                                color: stateLabel === "active"
+                                font.weight: isActive ? Font.Bold : Font.Normal
+                                color: isActive
                                     ? theme.crust
-                                    : (stateLabel === "occupied" ? theme.text : theme.overlay0)
+                                    : (isOccupied ? theme.text : theme.overlay0)
                             }
 
                             MouseArea {
                                 id: wsPressArea
                                 anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-                                onClicked: Quickshell.execDetached(["bash", "-c", paths.serpantinumDir + "/scripts/qs_manager.sh " + wsName])
+                                onClicked: Hyprland.dispatch("workspace " + wsId)
                             }
                         }
                     }

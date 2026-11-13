@@ -1,7 +1,7 @@
 import QtQuick
 import Quickshell
+import Quickshell.Services.Mpris
 import "../../../theme"
-import "../../../services"
 
 Item {
     id: musicSatellite
@@ -12,15 +12,23 @@ Item {
     property real sphereRadius: 260
     property real satelliteZoom: 1.0
     property bool isSearchMode: false
-    property bool isMusicActive: false
     property bool pressed: false
     property real centerWidth: parent ? parent.width : 520
     property real centerHeight: parent ? parent.height : 520
     property real independentCometAngle: 0
-    property var musicData: ({ "status": "Stopped", "title": "", "artUrl": "", "timeStr": "" })
+
+    readonly property MprisPlayer activePlayer: {
+        const players = Mpris.players.values;
+        for (let i = 0; i < players.length; i++) {
+            if (players[i].playbackState === MprisPlaybackState.Playing)
+                return players[i];
+        }
+        return players.length > 0 ? players[0] : null;
+    }
+
+    readonly property bool isMusicActive: activePlayer !== null
 
     MatugenColors { id: theme }
-    Caching { id: paths }
 
     x: (centerWidth / 2) + (proj.x * sphereRadius) - width / 2
     y: (centerHeight / 2) + (proj.y * sphereRadius) - height / 2
@@ -104,8 +112,17 @@ Item {
                 clip: true
                 Image {
                     anchors.fill: parent
-                    source: musicSatellite.musicData.artUrl || ""
+                    source: musicSatellite.activePlayer && musicSatellite.activePlayer.trackArtUrl ? musicSatellite.activePlayer.trackArtUrl : ""
                     fillMode: Image.PreserveAspectCrop
+                    visible: status === Image.Ready
+                }
+                Text {
+                    anchors.centerIn: parent
+                    text: ""
+                    font.family: "Iosevka Nerd Font"
+                    font.pixelSize: 16
+                    color: theme.green
+                    visible: !musicSatellite.activePlayer || !musicSatellite.activePlayer.trackArtUrl
                 }
             }
 
@@ -113,22 +130,23 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: 2
                 Text {
-                    text: musicSatellite.musicData.title || "No Title"
+                    text: musicSatellite.activePlayer ? (musicSatellite.activePlayer.trackTitle || "Unknown Track") : "No Media"
                     font.family: "JetBrains Mono"; font.weight: Font.Black
                     font.pixelSize: 12; color: theme.text
                     width: 110; elide: Text.ElideRight
                 }
                 Text {
-                    text: musicSatellite.musicData.timeStr || ""
+                    text: musicSatellite.activePlayer ? (musicSatellite.activePlayer.trackArtist || (musicSatellite.activePlayer.playbackState === MprisPlaybackState.Playing ? "Playing" : "Paused")) : "Stopped"
                     font.family: "JetBrains Mono"; font.weight: Font.Bold
                     font.pixelSize: 10; color: theme.subtext0
+                    width: 110; elide: Text.ElideRight
                 }
             }
         }
 
         MouseArea {
             anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-            onClicked: Quickshell.execDetached(["bash", "-c", paths.serpantinumDir + "/scripts/qs_manager.sh toggle music"])
+            onClicked: if (musicSatellite.activePlayer) musicSatellite.activePlayer.togglePlaying()
         }
     }
 

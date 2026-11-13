@@ -3,10 +3,13 @@ import Quickshell
 
 QtObject {
     id: root
-    readonly property string qsDir: "/home/makdumibrohim/.config/quickshell/galaxy3d"
-    readonly property string serpantinumDir: "/home/makdumibrohim/.local/share/serpantinum/src"
-    readonly property string runDir: "/tmp"
-    readonly property string cacheDir: "/tmp"
-    function getRunDir(name) { return "/tmp"; }
-    function getCacheDir(name) { return "/tmp"; }
+
+    readonly property string home: Quickshell.env("HOME") || ""
+    readonly property string configDir: (Quickshell.env("XDG_CONFIG_HOME") || (root.home + "/.config")) + "/quickshell/galaxy3d"
+    readonly property string qsDir: root.configDir
+    readonly property string cacheDir: (Quickshell.env("XDG_CACHE_HOME") || (root.home + "/.cache")) + "/galaxy3d"
+    readonly property string runDir: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/galaxy3d"
+
+    function getRunDir(name) { return root.runDir; }
+    function getCacheDir(name) { return root.cacheDir; }
 }
