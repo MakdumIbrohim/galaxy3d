@@ -89,7 +89,7 @@ Item {
     readonly property real _sat_thrBase:   window.s(16)    // was 20
     readonly property real _sat_spacing:   window.s(5)     // was 6
 
-    property real baseSphereRadius: 380
+    property real baseSphereRadius: 265
     property real sphereZoom: 1.0
     Behavior on sphereZoom { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
 
@@ -256,7 +256,7 @@ Item {
     ListModel { id: appModel }
 
     function handleSearch(query) {
-        window.searchQuery = query.toLowerCase();
+        window.searchQuery = query.toLowerCase().trim();
         if (window.searchQuery === "") {
             window.selectedAppIndex = -1;
             window.selectedAppName  = "";
@@ -266,8 +266,11 @@ Item {
             return;
         }
         let found = false;
+        // Prioritas 1: Exact match atau dimulai dengan keyword
         for (let i = 0; i < appModel.count; i++) {
-            if (appModel.get(i).name.toLowerCase().includes(window.searchQuery)) {
+            let name = appModel.get(i).name.toLowerCase();
+            let execCmd = (appModel.get(i).exec || "").toLowerCase();
+            if (name === window.searchQuery || name.startsWith(window.searchQuery) || execCmd.includes(window.searchQuery)) {
                 window.selectedAppIndex = i;
                 window.selectedAppName  = appModel.get(i).name;
                 window.selectedAppIcon  = appModel.get(i).icon || "";
@@ -276,6 +279,21 @@ Item {
                 window.sphereZoom = 1.65;
                 found = true;
                 break;
+            }
+        }
+        // Prioritas 2: Substring match
+        if (!found) {
+            for (let i = 0; i < appModel.count; i++) {
+                if (appModel.get(i).name.toLowerCase().includes(window.searchQuery)) {
+                    window.selectedAppIndex = i;
+                    window.selectedAppName  = appModel.get(i).name;
+                    window.selectedAppIcon  = appModel.get(i).icon || "";
+                    window.selectedAppExec  = appModel.get(i).exec || "";
+                    centerOnApp(i);
+                    window.sphereZoom = 1.65;
+                    found = true;
+                    break;
+                }
             }
         }
         if (!found) {
@@ -369,20 +387,23 @@ Item {
 
                     z: Math.round(proj.z * 1000)
 
-                    property bool isMatch:    window.searchQuery === "" || model.name.toLowerCase().includes(window.searchQuery)
+                    property bool isMatch: {
+                        if (window.searchQuery === "") return true;
+                        let n = model.name.toLowerCase();
+                        let e = (model.exec || "").toLowerCase();
+                        return n.includes(window.searchQuery) || e.includes(window.searchQuery);
+                    }
                     property bool isSelected: index === window.selectedAppIndex
 
-                    property real _distFromCenter: Math.sqrt(proj.x * proj.x + proj.y * proj.y)
-                    property bool isFrontOrbiter: (proj.z > 0.05) && (_distFromCenter > 0.35)
-                    property real _hz: Math.max(0.0, Math.min(1.0, (proj.z - 0.05) * 2.5))
-                    opacity: (window.searchQuery === "" ? _hz : (isMatch ? 1.0 : 0.0))
-                    Behavior on opacity { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
+                    property real _hz: Math.max(0.0, Math.min(1.0, proj.z * 3.5))
+                    opacity: (window.searchQuery === "" ? (proj.z > -0.05 ? _hz : 0.0) : (isMatch ? 1.0 : 0.05))
+                    Behavior on opacity { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
 
-                    visible: isFrontOrbiter && (window.searchQuery === "" ? (opacity > 0.05) : isMatch)
+                    visible: (proj.z > -0.05) && (window.searchQuery === "" ? (opacity > 0.02) : isMatch)
 
-                    property real _baseScale: isMatch && window.searchQuery !== "" ? 1.35 : (0.85 + (Math.max(0.0, proj.z) * 0.35))
-                    scale: isSelected ? 1.5 : (_baseScale * ((nodeMa.containsMouse && !isSelected) ? 1.15 : 1.0))
-                    Behavior on scale { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
+                    property real _baseScale: isMatch && window.searchQuery !== "" ? 1.25 : (0.75 + (Math.max(0.0, proj.z) * 0.35))
+                    scale: isSelected ? 1.4 : (_baseScale * ((nodeMa.containsMouse && !isSelected) ? 1.15 : 1.0))
+                    Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
 
                     // Tilt angles — used only for the non-selected card face
                     property real _xNorm: proj.x / (window.sphereRadius / window.s(310.5))

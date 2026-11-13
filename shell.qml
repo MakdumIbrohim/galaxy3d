@@ -13,6 +13,8 @@ ShellRoot {
     Moon {
         id: moonBg
         isSearchMode: launcherWindow.visible
+        rotX: launcherWindow.visible ? launcherContent.rotX : -0.2
+        rotY: launcherWindow.visible ? launcherContent.rotY : 0.0
     }
 
     // Sci-Fi Glass Top Bar (Media player, Workspaces, Clock, Status)
