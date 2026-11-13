@@ -25,4 +25,7 @@ QtObject {
     property color pink:      "#f5c2e7"
     property color flamingo:  "#f2cdcd"
     property color rosewater: "#f5e0dc"
+
+    // Primary system accent
+    property color accent:    mauve
 }

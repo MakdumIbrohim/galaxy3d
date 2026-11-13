@@ -323,11 +323,27 @@ PanelWindow {
                                 RowLayout {
                                     spacing: 8
                                     Repeater {
-                                        model: [theme.mauve, theme.blue, theme.teal, theme.peach, theme.green]
+                                        model: [
+                                            { "name": "Mauve", "col": theme.mauve },
+                                            { "name": "Blue",  "col": theme.blue },
+                                            { "name": "Teal",  "col": theme.teal },
+                                            { "name": "Peach", "col": theme.peach },
+                                            { "name": "Green", "col": theme.green }
+                                        ]
                                         delegate: Rectangle {
-                                            width: 24; height: 24; radius: 12; color: modelData
-                                            border.color: "#ffffff"; border.width: swatchMa.containsMouse ? 2 : 0
-                                            MouseArea { id: swatchMa; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor }
+                                            width: 24; height: 24; radius: 12; color: modelData.col
+                                            border.color: "#ffffff"; border.width: swatchMa.containsMouse || settingsWindow.activeAccent === modelData.name ? 2 : 0
+                                            MouseArea {
+                                                id: swatchMa
+                                                anchors.fill: parent
+                                                hoverEnabled: true
+                                                cursorShape: Qt.PointingHandCursor
+                                                onClicked: {
+                                                    settingsWindow.activeAccent = modelData.name;
+                                                    Quickshell.execDetached(["bash", "-c", "echo '" + modelData.name + "' > " + paths.configDir + "/accent.conf"]);
+                                                    Quickshell.execDetached(["notify-send", "Warna Aksen", "Aksen sistem diganti ke " + modelData.name]);
+                                                }
+                                            }
                                         }
                                     }
                                 }
