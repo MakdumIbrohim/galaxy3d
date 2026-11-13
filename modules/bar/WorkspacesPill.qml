@@ -30,7 +30,7 @@ Rectangle {
                 MouseArea {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: Hyprland.dispatch("workspace " + wsId)
+                    onClicked: Quickshell.execDetached(["hyprctl", "dispatch", "workspace", wsId.toString()])
                 }
             }
         }

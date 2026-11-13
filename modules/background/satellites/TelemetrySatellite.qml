@@ -195,7 +195,7 @@ Item {
                             MouseArea {
                                 id: wsPressArea
                                 anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-                                onClicked: Hyprland.dispatch("workspace " + wsId)
+                                onClicked: Quickshell.execDetached(["hyprctl", "dispatch", "workspace", wsId.toString()])
                             }
                         }
                     }
