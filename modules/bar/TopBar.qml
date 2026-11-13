@@ -49,7 +49,14 @@ PanelWindow {
                 MouseArea {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: Quickshell.execDetached(["qs", "-c", "galaxy3d", "ipc", "call", "launcher", "toggle"])
+                    acceptedButtons: Qt.LeftButton | Qt.RightButton
+                    onClicked: mouse => {
+                        if (mouse.button === Qt.RightButton) {
+                            Quickshell.execDetached(["qs", "-c", "galaxy3d", "ipc", "call", "settings", "toggle"]);
+                        } else {
+                            Quickshell.execDetached(["qs", "-c", "galaxy3d", "ipc", "call", "launcher", "toggle"]);
+                        }
+                    }
                 }
             }
 
