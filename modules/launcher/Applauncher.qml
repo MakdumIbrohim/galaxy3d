@@ -233,6 +233,8 @@ Item {
         selectedSatelliteContainer.satOpacity = 0.0;
         selectedSatelliteContainer.satAnimOffsetY = 40;
         selectedSatelliteContainer.satPanelDeploy = 0.0;
+        lockOnReticle.reticleScale = 1.4;
+        lockOnReticle.reticleOpacity = 0.0;
         window.sphereZoom = 1.0;
         searchContainer.forceActiveFocus();
         openAnim.restart();
@@ -444,6 +446,52 @@ Item {
             }
         }
 
+        // Telemetry Lock-On Radar Reticle on the Moon
+        Item {
+            id: lockOnReticle
+            anchors.centerIn: parent
+            width: window.s(320)
+            height: width
+            z: 1040
+            transformOrigin: Item.Center
+
+            property real reticleScale: 1.0
+            property real reticleOpacity: 0.0
+            property real reticleRot: 0
+
+            scale: reticleScale
+            opacity: reticleOpacity * window.introPhase
+            visible: opacity > 0.01
+
+            // Outer Target Reticle Ring
+            Rectangle {
+                anchors.centerIn: parent
+                width: parent.width
+                height: parent.height
+                radius: width / 2
+                color: "transparent"
+                border.color: Qt.alpha(window.teal, 0.40)
+                border.width: 1.5
+                rotation: lockOnReticle.reticleRot
+            }
+
+            // Inner Target Lock Bracket
+            Rectangle {
+                anchors.centerIn: parent
+                width: parent.width * 0.75
+                height: width
+                radius: width / 2
+                color: Qt.alpha(window.teal, 0.04)
+                border.color: Qt.alpha(window.blue, 0.50)
+                border.width: 1
+                rotation: -lockOnReticle.reticleRot * 1.5
+            }
+
+            // Crosshair markers
+            Rectangle { anchors.centerIn: parent; width: 1; height: parent.height * 0.85; color: Qt.alpha(window.teal, 0.3) }
+            Rectangle { anchors.centerIn: parent; width: parent.width * 0.85; height: 1; color: Qt.alpha(window.teal, 0.3) }
+        }
+
         // Dedicated search result satellite pinned horizontally over the Moon center
         Item {
             id: selectedSatelliteContainer
@@ -470,6 +518,8 @@ Item {
                 satOpacity = 0.0;
                 satAnimOffsetY = 38;
                 satPanelDeploy = 0.0;
+                lockOnReticle.reticleScale = 1.4;
+                lockOnReticle.reticleOpacity = 0.0;
                 satEntranceAnim.restart();
             }
 
@@ -481,6 +531,33 @@ Item {
 
             ParallelAnimation {
                 id: satEntranceAnim
+
+                NumberAnimation {
+                    target: lockOnReticle
+                    property: "reticleScale"
+                    from: 1.4
+                    to: 1.0
+                    duration: 500
+                    easing.type: Easing.OutBack
+                }
+
+                NumberAnimation {
+                    target: lockOnReticle
+                    property: "reticleOpacity"
+                    from: 0.0
+                    to: 0.65
+                    duration: 280
+                    easing.type: Easing.OutCubic
+                }
+
+                NumberAnimation {
+                    target: lockOnReticle
+                    property: "reticleRot"
+                    from: 45
+                    to: 0
+                    duration: 550
+                    easing.type: Easing.OutCubic
+                }
 
                 NumberAnimation {
                     target: selectedSatelliteContainer
@@ -524,6 +601,22 @@ Item {
 
             ParallelAnimation {
                 id: satExitAnim
+
+                NumberAnimation {
+                    target: lockOnReticle
+                    property: "reticleScale"
+                    to: 1.3
+                    duration: 250
+                    easing.type: Easing.InCubic
+                }
+
+                NumberAnimation {
+                    target: lockOnReticle
+                    property: "reticleOpacity"
+                    to: 0.0
+                    duration: 200
+                    easing.type: Easing.OutCubic
+                }
 
                 NumberAnimation {
                     target: selectedSatelliteContainer
