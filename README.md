@@ -1,27 +1,27 @@
 # Galaxy3D Shell
 
-Galaxy3D Shell adalah desktop shell berbasis Quickshell untuk Hyprland (Wayland). Shell ini menyediakan background 3D interaktif (Bumi, Bulan, dan satelit status sistem), 3D orbital app launcher, top bar, OSD volume/kecerahan, dan panel notifikasi.
+Galaxy3D Shell is a Quickshell-based desktop shell for Hyprland (Wayland). It features an interactive 3D background (Earth, Moon, and orbiting system status satellites), a 3D orbital application launcher, top bar, volume/brightness OSD, and notification overlays.
 
-## Dependensi
+## Dependencies
 
-Pastikan paket berikut terpasang di sistem:
+Ensure the following packages are installed on your system:
 - `quickshell` (>= 0.3.2)
 - `hyprland`
 - `qt6-declarative`, `qt6-5compat`
 - `pipewire`, `wireplumber`
 - `networkmanager`, `bluez`, `brightnessctl`, `curl`
-- `rust`, `cargo` (untuk build helper)
-- Font: `JetBrainsMono Nerd Font` atau `Iosevka Nerd Font`
+- `rust`, `cargo` (for helper build)
+- Fonts: `JetBrainsMono Nerd Font` or `Iosevka Nerd Font`
 
-## Instalasi
+## Installation
 
-1. Salin konfigurasi ke direktori Quickshell:
+1. Clone configuration into the Quickshell directory:
 ```bash
 git clone https://github.com/makdumibrohim/galaxy3d.git ~/.config/quickshell/galaxy3d
 cd ~/.config/quickshell/galaxy3d
 ```
 
-2. Kompilasi binary helper:
+2. Compile the helper binary:
 ```bash
 cd services/helper
 cargo build --release
@@ -30,20 +30,20 @@ chmod +x ../galaxy3d-helper
 cd ../..
 ```
 
-3. Uji coba jalankan shell:
+3. Launch shell test run:
 ```bash
 qs -c galaxy3d
 ```
 
-## Konfigurasi Hyprland
+## Hyprland Configuration
 
-Tambahkan baris berikut ke `~/.config/hypr/hyprland.conf`:
+Add the following lines to `~/.config/hypr/hyprland.conf`:
 
 ```ini
-# Autostart saat login
+# Autostart on login
 exec-once = qs -c galaxy3d
 
-# Keybinds
+# Keybindings
 bind = SUPER, SUPER_L, exec, qs -c galaxy3d ipc call launcher toggle
 bind = SUPER, A, exec, qs -c galaxy3d ipc call launcher toggle
 bind = SUPER, I, exec, qs -c galaxy3d ipc call settings toggle
@@ -52,16 +52,16 @@ bind = SUPER, X, exec, qs -c galaxy3d ipc call power toggle
 bind = SUPER, M, exec, qs -c galaxy3d ipc call media toggle
 ```
 
-## Perintah IPC
+## IPC Commands
 
-Gunakan perintah `qs -c galaxy3d ipc call <target> <fungsi>` untuk mengontrol shell dari terminal atau skrip:
+Use `qs -c galaxy3d ipc call <target> <function>` to control the shell from a terminal or script:
 
-| Target | Fungsi | Keterangan |
+| Target | Function | Description |
 | :--- | :--- | :--- |
-| `launcher` | `toggle()` | Buka / tutup App Launcher |
-| `settings` | `toggle()` | Buka / tutup jendela pengaturan |
-| `network` | `toggle()` | Buka / tutup scanner Wi-Fi |
-| `power` | `toggle()` | Buka / tutup menu power/sesi |
-| `media` | `toggle()` | Buka / tutup flyout media player |
-| `wallpaper`| `random()` | Ganti wallpaper acak dari `~/Pictures/Wallpapers/` |
-| `wallpaper`| `set(path)` | Set wallpaper ke file tertentu |
+| `launcher` | `toggle()` | Toggle App Launcher |
+| `settings` | `toggle()` | Toggle Settings Window |
+| `network` | `toggle()` | Toggle Wi-Fi Scanner |
+| `power` | `toggle()` | Toggle Power / Session Menu |
+| `media` | `toggle()` | Toggle Media Player Flyout |
+| `wallpaper`| `random()` | Set random wallpaper from `~/Pictures/Wallpapers/` |
+| `wallpaper`| `set(path)` | Set wallpaper to a specific file |

@@ -303,7 +303,7 @@ Item {
             return;
         }
         let found = false;
-        // Prioritas 1: Exact match atau dimulai dengan keyword
+        // Priority 1: Exact match or starts with query, or matches exec binary
         for (let i = 0; i < appModel.count; i++) {
             let name = appModel.get(i).name.toLowerCase();
             let execCmd = (appModel.get(i).exec || "").toLowerCase();
@@ -318,7 +318,7 @@ Item {
                 break;
             }
         }
-        // Prioritas 2: Substring match
+        // Priority 2: Substring match in application name
         if (!found) {
             for (let i = 0; i < appModel.count; i++) {
                 if (appModel.get(i).name.toLowerCase().includes(window.searchQuery)) {
@@ -509,7 +509,7 @@ Item {
                     Text {
                         Layout.alignment: Qt.AlignHCenter
                         Layout.fillWidth: true
-                        text: "Aplikasi Tidak Ditemukan"
+                        text: "Application Not Found"
                         font.family: "JetBrains Mono"
                         font.pixelSize: window._s15
                         font.weight: Font.Bold
@@ -521,7 +521,7 @@ Item {
                     Text {
                         Layout.alignment: Qt.AlignHCenter
                         Layout.fillWidth: true
-                        text: "Tidak ada hasil untuk \"" + window.searchQuery + "\""
+                        text: "No results found for \"" + window.searchQuery + "\""
                         font.family: "JetBrains Mono"
                         font.pixelSize: window._s11
                         color: window.subtext0
@@ -531,7 +531,7 @@ Item {
 
                     Text {
                         Layout.alignment: Qt.AlignHCenter
-                        text: "Periksa kembali ejaan kata kunci"
+                        text: "Check your spelling or try different keywords"
                         font.family: "JetBrains Mono"
                         font.pixelSize: window.s(10)
                         color: window.overlay0

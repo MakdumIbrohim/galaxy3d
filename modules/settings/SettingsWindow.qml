@@ -30,14 +30,14 @@ PanelWindow {
 
     property int activeCategoryIndex: 0
     readonly property var categories: [
-        { "name": "Tampilan",        "icon": "󰔎", "desc": "Wallpaper, tema, warna aksen, dan font" },
-        { "name": "Jaringan",        "icon": "󰤨", "desc": "Wi-Fi, satelit, DNS, dan proxy" },
-        { "name": "Suara",           "icon": "󰕾", "desc": "Volume output/input dan perangkat audio" },
-        { "name": "Notifikasi",      "icon": "󰂚", "desc": "Izin aplikasi dan Jangan Ganggu (DND)" },
-        { "name": "Bluetooth",       "icon": "󰂯", "desc": "Koneksi perangkat nirkabel" },
-        { "name": "Privasi",         "icon": "󰒃", "desc": "Keamanan data dan kunci layar" },
-        { "name": "Akun",            "icon": "󰀉", "desc": "Pengguna, avatar, dan sesi shell" },
-        { "name": "Sistem",          "icon": "󰋽", "desc": "Informasi perangkat dan pembaruan" }
+        { "name": "Appearance",     "icon": "󰔎", "desc": "Wallpaper, theme, accent colors, and fonts" },
+        { "name": "Network",        "icon": "󰤨", "desc": "Wi-Fi, satellites, DNS, and proxy" },
+        { "name": "Sound",          "icon": "󰕾", "desc": "Output/input volume and audio devices" },
+        { "name": "Notifications",  "icon": "󰂚", "desc": "App permissions and Do Not Disturb (DND)" },
+        { "name": "Bluetooth",      "icon": "󰂯", "desc": "Wireless device connectivity" },
+        { "name": "Privacy",        "icon": "󰒃", "desc": "Data security and screen lock" },
+        { "name": "Accounts",       "icon": "󰀉", "desc": "User profile, avatar, and shell session" },
+        { "name": "System",         "icon": "󰋽", "desc": "Device information and system updates" }
     ]
 
     // Wallpaper and audio tracking
@@ -117,7 +117,7 @@ PanelWindow {
                         Layout.fillWidth: true
                         spacing: 8
                         Text { text: ""; font.family: "Iosevka Nerd Font"; font.pixelSize: 18; color: theme.mauve }
-                        Text { text: "PENGATURAN"; font.family: "JetBrains Mono"; font.weight: Font.Bold; font.pixelSize: 13; color: theme.text }
+                        Text { text: "SETTINGS"; font.family: "JetBrains Mono"; font.weight: Font.Bold; font.pixelSize: 13; color: theme.text }
                     }
 
                     Rectangle { height: 1; Layout.fillWidth: true; color: Qt.rgba(theme.surface1.r, theme.surface1.g, theme.surface1.b, 0.5) }
@@ -185,7 +185,7 @@ PanelWindow {
                             anchors.centerIn: parent
                             spacing: 8
                             Text { text: "󰅖"; font.family: "Iosevka Nerd Font"; font.pixelSize: 13; color: theme.red }
-                            Text { text: "Tutup Pengaturan"; font.family: "JetBrains Mono"; font.pixelSize: 11; font.bold: true; color: theme.text }
+                            Text { text: "Close Settings"; font.family: "JetBrains Mono"; font.pixelSize: 11; font.bold: true; color: theme.text }
                         }
 
                         MouseArea {
@@ -240,13 +240,13 @@ PanelWindow {
                     Layout.fillHeight: true
                     clip: true
 
-                    // --- 1. TAMPILAN ---
+                    // --- 1. APPEARANCE ---
                     ColumnLayout {
                         visible: settingsWindow.activeCategoryIndex === 0
                         width: parent.width - 20
                         spacing: 14
 
-                        Text { text: "Wallpaper Desktop"; font.family: "JetBrains Mono"; font.bold: true; font.pixelSize: 12; color: theme.subtext0 }
+                        Text { text: "Desktop Wallpaper"; font.family: "JetBrains Mono"; font.bold: true; font.pixelSize: 12; color: theme.subtext0 }
 
                         RowLayout {
                             spacing: 12
@@ -281,14 +281,14 @@ PanelWindow {
                                         onClicked: {
                                             let fullPath = paths.home + "/Pictures/Wallpapers/" + modelData.file;
                                             Quickshell.execDetached(["bash", "-c", "echo '" + fullPath + "' > " + paths.configDir + "/wallpaper.conf"]);
-                                            Quickshell.execDetached(["notify-send", "Wallpaper Diperbarui", modelData.name]);
+                                            Quickshell.execDetached(["notify-send", "Wallpaper Updated", modelData.name]);
                                         }
                                     }
                                 }
                             }
 
                             Button {
-                                text: "Acak"
+                                text: "Random"
                                 contentItem: Text { text: parent.text; font.family: "JetBrains Mono"; font.pixelSize: 11; font.bold: true; color: theme.crust }
                                 background: Rectangle { radius: 8; color: theme.mauve }
                                 onClicked: ShellBridge.randomWallpaper()
@@ -302,16 +302,16 @@ PanelWindow {
                             Layout.fillWidth: true
                             spacing: 16
                             ColumnLayout {
-                                Text { text: "Tema Dasar"; font.family: "JetBrains Mono"; font.bold: true; font.pixelSize: 12; color: theme.subtext0 }
+                                Text { text: "Base Theme"; font.family: "JetBrains Mono"; font.bold: true; font.pixelSize: 12; color: theme.subtext0 }
                                 RowLayout {
                                     spacing: 8
                                     Button {
-                                        text: "Gelap (Dark)"
+                                        text: "Dark"
                                         background: Rectangle { radius: 8; color: theme.base; border.color: theme.mauve; border.width: 1.5 }
                                         contentItem: Text { text: parent.text; font.family: "JetBrains Mono"; font.pixelSize: 11; color: theme.text }
                                     }
                                     Button {
-                                        text: "Terang (Light)"
+                                        text: "Light"
                                         background: Rectangle { radius: 8; color: theme.surface0; border.color: theme.surface2; border.width: 1 }
                                         contentItem: Text { text: parent.text; font.family: "JetBrains Mono"; font.pixelSize: 11; color: theme.subtext0 }
                                     }
@@ -319,7 +319,7 @@ PanelWindow {
                             }
 
                             ColumnLayout {
-                                Text { text: "Warna Aksen"; font.family: "JetBrains Mono"; font.bold: true; font.pixelSize: 12; color: theme.subtext0 }
+                                Text { text: "Accent Color"; font.family: "JetBrains Mono"; font.bold: true; font.pixelSize: 12; color: theme.subtext0 }
                                 RowLayout {
                                     spacing: 8
                                     Repeater {
@@ -341,7 +341,7 @@ PanelWindow {
                                                 onClicked: {
                                                     settingsWindow.activeAccent = modelData.name;
                                                     Quickshell.execDetached(["bash", "-c", "echo '" + modelData.name + "' > " + paths.configDir + "/accent.conf"]);
-                                                    Quickshell.execDetached(["notify-send", "Warna Aksen", "Aksen sistem diganti ke " + modelData.name]);
+                                                    Quickshell.execDetached(["notify-send", "Accent Color", "System accent changed to " + modelData.name]);
                                                 }
                                             }
                                         }
@@ -351,21 +351,21 @@ PanelWindow {
                         }
                     }
 
-                    // --- 2. JARINGAN ---
+                    // --- 2. NETWORK ---
                     ColumnLayout {
                         visible: settingsWindow.activeCategoryIndex === 1
                         width: parent.width - 20
                         spacing: 12
 
-                        Text { text: "Koneksi Nirkabel & Satelit"; font.family: "JetBrains Mono"; font.bold: true; font.pixelSize: 12; color: theme.subtext0 }
+                        Text { text: "Wireless & Satellite Connections"; font.family: "JetBrains Mono"; font.bold: true; font.pixelSize: 12; color: theme.subtext0 }
 
                         Rectangle {
                             Layout.fillWidth: true; height: 48; radius: 10; color: theme.surface0
                             RowLayout {
                                 anchors.fill: parent; anchors.margins: 12
-                                Text { text: "Buka Panel Pemindaian Satelit / Wi-Fi"; font.family: "JetBrains Mono"; font.pixelSize: 12; color: theme.text; Layout.fillWidth: true }
+                                Text { text: "Open Satellite / Wi-Fi Scanner Panel"; font.family: "JetBrains Mono"; font.pixelSize: 12; color: theme.text; Layout.fillWidth: true }
                                 Button {
-                                    text: "Buka Scanner"
+                                    text: "Open Scanner"
                                     background: Rectangle { radius: 6; color: theme.blue }
                                     contentItem: Text { text: parent.text; font.family: "JetBrains Mono"; font.pixelSize: 11; font.bold: true; color: theme.crust }
                                     onClicked: {
@@ -380,7 +380,7 @@ PanelWindow {
                             Layout.fillWidth: true; height: 48; radius: 10; color: theme.surface0
                             RowLayout {
                                 anchors.fill: parent; anchors.margins: 12
-                                Text { text: "Mode Pesawat (Airplane Mode)"; font.family: "JetBrains Mono"; font.pixelSize: 12; color: theme.text; Layout.fillWidth: true }
+                                Text { text: "Airplane Mode"; font.family: "JetBrains Mono"; font.pixelSize: 12; color: theme.text; Layout.fillWidth: true }
                                 Switch {
                                     checked: false
                                     onToggled: Quickshell.execDetached(["rfkill", checked ? "block" : "unblock", "all"])
@@ -389,13 +389,13 @@ PanelWindow {
                         }
                     }
 
-                    // --- 3. SUARA ---
+                    // --- 3. SOUND ---
                     ColumnLayout {
                         visible: settingsWindow.activeCategoryIndex === 2
                         width: parent.width - 20
                         spacing: 14
 
-                        Text { text: "Volume Output (Master)"; font.family: "JetBrains Mono"; font.bold: true; font.pixelSize: 12; color: theme.subtext0 }
+                        Text { text: "Output Volume (Master)"; font.family: "JetBrains Mono"; font.bold: true; font.pixelSize: 12; color: theme.subtext0 }
                         RowLayout {
                             Layout.fillWidth: true; spacing: 10
                             Text { text: "󰕾"; font.family: "Iosevka Nerd Font"; font.pixelSize: 18; color: theme.blue }
@@ -411,7 +411,7 @@ PanelWindow {
                             }
                         }
 
-                        Text { text: "Volume Input (Mikrofon)"; font.family: "JetBrains Mono"; font.bold: true; font.pixelSize: 12; color: theme.subtext0 }
+                        Text { text: "Input Volume (Microphone)"; font.family: "JetBrains Mono"; font.bold: true; font.pixelSize: 12; color: theme.subtext0 }
                         RowLayout {
                             Layout.fillWidth: true; spacing: 10
                             Text { text: "󰍬"; font.family: "Iosevka Nerd Font"; font.pixelSize: 18; color: theme.peach }
@@ -428,7 +428,7 @@ PanelWindow {
                         }
                     }
 
-                    // --- 4. NOTIFIKASI ---
+                    // --- 4. NOTIFICATIONS ---
                     ColumnLayout {
                         visible: settingsWindow.activeCategoryIndex === 3
                         width: parent.width - 20
@@ -440,8 +440,8 @@ PanelWindow {
                                 anchors.fill: parent; anchors.margins: 12
                                 ColumnLayout {
                                     Layout.fillWidth: true; spacing: 2
-                                    Text { text: "Jangan Ganggu (Do Not Disturb)"; font.family: "JetBrains Mono"; font.bold: true; font.pixelSize: 12; color: theme.text }
-                                    Text { text: "Senyapkan seluruh popup notifikasi desktop"; font.family: "JetBrains Mono"; font.pixelSize: 10; color: theme.subtext0 }
+                                    Text { text: "Do Not Disturb (DND)"; font.family: "JetBrains Mono"; font.bold: true; font.pixelSize: 12; color: theme.text }
+                                    Text { text: "Mute all desktop notification popups"; font.family: "JetBrains Mono"; font.pixelSize: 10; color: theme.subtext0 }
                                 }
                                 Switch { checked: false }
                             }
@@ -458,7 +458,7 @@ PanelWindow {
                             Layout.fillWidth: true; height: 50; radius: 10; color: theme.surface0
                             RowLayout {
                                 anchors.fill: parent; anchors.margins: 12
-                                Text { text: "Daya Bluetooth"; font.family: "JetBrains Mono"; font.bold: true; font.pixelSize: 12; color: theme.text; Layout.fillWidth: true }
+                                Text { text: "Bluetooth Power"; font.family: "JetBrains Mono"; font.bold: true; font.pixelSize: 12; color: theme.text; Layout.fillWidth: true }
                                 Switch {
                                     checked: false
                                     onToggled: Quickshell.execDetached(["bluetoothctl", "power", checked ? "on" : "off"])
@@ -467,7 +467,7 @@ PanelWindow {
                         }
                     }
 
-                    // --- 6. PRIVASI ---
+                    // --- 6. PRIVACY ---
                     ColumnLayout {
                         visible: settingsWindow.activeCategoryIndex === 5
                         width: parent.width - 20
@@ -479,15 +479,15 @@ PanelWindow {
                                 anchors.fill: parent; anchors.margins: 12
                                 ColumnLayout {
                                     Layout.fillWidth: true; spacing: 2
-                                    Text { text: "Layanan Lokasi Otomatis"; font.family: "JetBrains Mono"; font.bold: true; font.pixelSize: 12; color: theme.text }
-                                    Text { text: "Gunakan geolokasi IP untuk widget cuaca"; font.family: "JetBrains Mono"; font.pixelSize: 10; color: theme.subtext0 }
+                                    Text { text: "Automatic Location Services"; font.family: "JetBrains Mono"; font.bold: true; font.pixelSize: 12; color: theme.text }
+                                    Text { text: "Use IP geolocation for weather widget"; font.family: "JetBrains Mono"; font.pixelSize: 10; color: theme.subtext0 }
                                 }
                                 Switch { checked: true }
                             }
                         }
                     }
 
-                    // --- 7. AKUN ---
+                    // --- 7. ACCOUNTS ---
                     ColumnLayout {
                         visible: settingsWindow.activeCategoryIndex === 6
                         width: parent.width - 20
@@ -500,13 +500,13 @@ PanelWindow {
                                 Text { anchors.centerIn: parent; text: "󰀉"; font.family: "Iosevka Nerd Font"; font.pixelSize: 26; color: theme.crust }
                             }
                             ColumnLayout {
-                                Text { text: Quickshell.env("USER") || "makdumibrohim"; font.family: "JetBrains Mono"; font.bold: true; font.pixelSize: 14; color: theme.text }
+                                Text { text: Quickshell.env("USER"); font.family: "JetBrains Mono"; font.bold: true; font.pixelSize: 14; color: theme.text }
                                 Text { text: "Default Shell: /usr/bin/fish"; font.family: "JetBrains Mono"; font.pixelSize: 11; color: theme.subtext0 }
                             }
                         }
                     }
 
-                    // --- 8. SISTEM & TENTANG ---
+                    // --- 8. SYSTEM & ABOUT ---
                     ColumnLayout {
                         visible: settingsWindow.activeCategoryIndex === 7
                         width: parent.width - 20
@@ -523,10 +523,10 @@ PanelWindow {
                         }
 
                         Button {
-                            text: "Periksa Pembaruan Sistem"
+                            text: "Check for System Updates"
                             contentItem: Text { text: parent.text; font.family: "JetBrains Mono"; font.pixelSize: 11; font.bold: true; color: theme.crust }
                             background: Rectangle { radius: 8; color: theme.teal }
-                            onClicked: Quickshell.execDetached(["notify-send", "Pembaruan", "Sistem Anda sudah mutakhir."])
+                            onClicked: Quickshell.execDetached(["notify-send", "Updates", "Your system is up to date."])
                         }
                     }
                 }

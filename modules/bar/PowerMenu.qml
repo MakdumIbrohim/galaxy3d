@@ -75,12 +75,12 @@ PanelWindow {
                 spacing: 10
                 Text { text: ""; font.family: "Iosevka Nerd Font"; font.pixelSize: 20; color: theme.red }
                 Text {
-                    text: "Sesi & Kontrol Daya"
+                    text: "Session & Power Controls"
                     font.family: "JetBrains Mono"; font.weight: Font.Bold; font.pixelSize: 15; color: theme.text
                     Layout.fillWidth: true
                 }
                 Text {
-                    text: "ESC untuk batal"
+                    text: "ESC to cancel"
                     font.family: "JetBrains Mono"; font.pixelSize: 10; color: theme.overlay0
                 }
             }
@@ -92,11 +92,11 @@ PanelWindow {
 
                 Repeater {
                     model: [
-                        { "name": "Kunci",    "icon": "󰌾", "cmd": "hyprlock || loginctl lock-session", "col": theme.mauve },
+                        { "name": "Lock",     "icon": "󰌾", "cmd": "hyprlock || loginctl lock-session", "col": theme.mauve },
                         { "name": "Suspend",  "icon": "󰤄", "cmd": "systemctl suspend",                   "col": theme.blue },
                         { "name": "Logout",   "icon": "󰍃", "cmd": "hyprctl dispatch exit",              "col": theme.yellow },
                         { "name": "Reboot",   "icon": "󰜉", "cmd": "systemctl reboot",                    "col": theme.peach },
-                        { "name": "Matikan",  "icon": "", "cmd": "systemctl poweroff",                  "col": theme.red }
+                        { "name": "Shutdown", "icon": "", "cmd": "systemctl poweroff",                  "col": theme.red }
                     ]
 
                     delegate: Rectangle {

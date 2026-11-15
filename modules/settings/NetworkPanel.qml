@@ -129,7 +129,7 @@ PanelWindow {
                 networkWindow.isConnecting = false;
                 let txt = this.text.trim();
                 if (txt.toLowerCase().includes("error") || txt.toLowerCase().includes("fail")) {
-                    networkWindow.connectionError = "Gagal terhubung: Sandi salah atau sinyal lemah.";
+                    networkWindow.connectionError = "Connection failed: Incorrect password or weak signal.";
                 } else {
                     networkWindow.connectionError = "";
                     networkWindow.selectedSsid = "";
@@ -188,7 +188,7 @@ PanelWindow {
                 }
 
                 Text {
-                    text: "Satelit & Jaringan Wi-Fi"
+                    text: "Satellite & Wi-Fi Networks"
                     font.family: "JetBrains Mono"
                     font.weight: Font.Bold
                     font.pixelSize: 15
@@ -252,7 +252,7 @@ PanelWindow {
                 }
             }
 
-            // --- Status Aktif Saat Ini ---
+            // --- Current Active Status ---
             Rectangle {
                 Layout.fillWidth: true
                 implicitHeight: activeLayout.implicitHeight + 18
@@ -289,7 +289,7 @@ PanelWindow {
 
                         RowLayout {
                             Text {
-                                text: networkWindow.activeSsid !== "" ? networkWindow.activeSsid : "Tidak Terhubung"
+                                text: networkWindow.activeSsid !== "" ? networkWindow.activeSsid : "Not Connected"
                                 font.family: "JetBrains Mono"
                                 font.weight: Font.Bold
                                 font.pixelSize: 13
@@ -301,7 +301,7 @@ PanelWindow {
                                 color: Qt.rgba(theme.green.r, theme.green.g, theme.green.b, 0.25)
                                 Text {
                                     anchors.centerIn: parent
-                                    text: "Aktif"
+                                    text: "Active"
                                     font.family: "JetBrains Mono"; font.pixelSize: 9; font.bold: true
                                     color: theme.green
                                 }
@@ -310,8 +310,8 @@ PanelWindow {
 
                         Text {
                             text: networkWindow.activeSsid !== ""
-                                ? "IP: " + networkWindow.activeIp + "  |  Sinyal: " + networkWindow.activeSignal + "%  |  " + networkWindow.activeSecurity
-                                : "Silakan pilih jaringan dari daftar di bawah untuk terhubung."
+                                ? "IP: " + networkWindow.activeIp + "  |  Signal: " + networkWindow.activeSignal + "%  |  " + networkWindow.activeSecurity
+                                : "Select a network from the list below to connect."
                             font.family: "JetBrains Mono"
                             font.pixelSize: 10
                             color: theme.subtext0
@@ -320,7 +320,7 @@ PanelWindow {
 
                     Button {
                         visible: networkWindow.activeSsid !== ""
-                        text: "Putuskan"
+                        text: "Disconnect"
                         contentItem: Text {
                             text: parent.text; font.family: "JetBrains Mono"; font.pixelSize: 11; font.bold: true
                             color: theme.red; horizontalAlignment: Text.AlignHCenter
@@ -352,24 +352,24 @@ PanelWindow {
                 }
             }
 
-            // --- Header Daftar Jaringan ---
+            // --- Available Networks Header ---
             RowLayout {
                 Layout.fillWidth: true
                 Text {
-                    text: "Jaringan Tersedia"
+                    text: "Available Networks"
                     font.family: "JetBrains Mono"; font.weight: Font.Bold; font.pixelSize: 12
                     color: theme.subtext0
                     Layout.fillWidth: true
                 }
                 Text {
                     visible: networkWindow.isScanning
-                    text: "Memindai frekuensi..."
+                    text: "Scanning frequencies..."
                     font.family: "JetBrains Mono"; font.pixelSize: 10; font.italic: true
                     color: theme.mauve
                 }
             }
 
-            // --- List Jaringan ---
+            // --- Network List ---
             ScrollView {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -453,7 +453,7 @@ PanelWindow {
                                         id: passInput
                                         Layout.fillWidth: true
                                         height: 34
-                                        placeholderText: "Masukkan kata sandi..."
+                                        placeholderText: "Enter password..."
                                         placeholderTextColor: theme.overlay0
                                         color: theme.text
                                         font.family: "JetBrains Mono"
@@ -490,7 +490,7 @@ PanelWindow {
 
                                     Button {
                                         Layout.fillWidth: true
-                                        text: networkWindow.isConnecting ? "Menghubungkan..." : "Hubungkan"
+                                        text: networkWindow.isConnecting ? "Connecting..." : "Connect"
                                         enabled: !networkWindow.isConnecting
                                         contentItem: Text {
                                             text: parent.text; font.family: "JetBrains Mono"; font.pixelSize: 11; font.bold: true
@@ -503,7 +503,7 @@ PanelWindow {
                                     }
 
                                     Button {
-                                        text: "Batal"
+                                        text: "Cancel"
                                         contentItem: Text {
                                             text: parent.text; font.family: "JetBrains Mono"; font.pixelSize: 11
                                             color: theme.text; horizontalAlignment: Text.AlignHCenter
@@ -534,7 +534,7 @@ PanelWindow {
                 }
             }
 
-            // --- Tombol Jaringan Tersembunyi (Hidden SSID) ---
+            // --- Hidden SSID Button ---
             Rectangle {
                 Layout.fillWidth: true
                 height: 38
@@ -547,7 +547,7 @@ PanelWindow {
                     anchors.centerIn: parent
                     spacing: 8
                     Text { text: "󰌾"; font.family: "Iosevka Nerd Font"; font.pixelSize: 13; color: theme.mauve }
-                    Text { text: "Hubungkan ke Jaringan Tersembunyi (Hidden SSID)"; font.family: "JetBrains Mono"; font.pixelSize: 11; font.bold: true; color: theme.text }
+                    Text { text: "Connect to Hidden Network (Hidden SSID)"; font.family: "JetBrains Mono"; font.pixelSize: 11; font.bold: true; color: theme.text }
                 }
 
                 MouseArea {
@@ -555,7 +555,7 @@ PanelWindow {
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: Quickshell.execDetached(["notify-send", "Jaringan", "Gunakan 'nmcli dev wifi connect <SSID> hidden yes'"])
+                    onClicked: Quickshell.execDetached(["notify-send", "Network", "Use 'nmcli dev wifi connect <SSID> hidden yes'"])
                 }
             }
         }

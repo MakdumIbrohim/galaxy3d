@@ -108,7 +108,7 @@ PanelWindow {
                     spacing: 2
 
                     Text {
-                        text: mediaWin.activePlayer ? (mediaWin.activePlayer.trackTitle || "Tidak Ada Judul") : "Tidak Ada Media"
+                        text: mediaWin.activePlayer ? (mediaWin.activePlayer.trackTitle || "No Title") : "No Media"
                         font.family: "JetBrains Mono"
                         font.weight: Font.Bold
                         font.pixelSize: 13
@@ -118,7 +118,7 @@ PanelWindow {
                     }
 
                     Text {
-                        text: mediaWin.activePlayer ? (mediaWin.activePlayer.trackArtist || "Unknown Artist") : "Putar lagu untuk melihat info"
+                        text: mediaWin.activePlayer ? (mediaWin.activePlayer.trackArtist || "Unknown Artist") : "Play audio to view track details"
                         font.family: "JetBrains Mono"
                         font.pixelSize: 11
                         color: theme.subtext0
@@ -127,7 +127,7 @@ PanelWindow {
                     }
 
                     Text {
-                        text: mediaWin.activePlayer ? (mediaWin.activePlayer.trackAlbum || (mediaWin.activePlayer.playbackState === MprisPlaybackState.Playing ? "Memutar" : "Jeda")) : ""
+                        text: mediaWin.activePlayer ? (mediaWin.activePlayer.trackAlbum || (mediaWin.activePlayer.playbackState === MprisPlaybackState.Playing ? "Playing" : "Paused")) : ""
                         font.family: "JetBrains Mono"
                         font.pixelSize: 9
                         color: theme.overlay0
