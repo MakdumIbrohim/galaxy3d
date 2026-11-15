@@ -13,7 +13,7 @@ RowLayout {
         objects: [Pipewire.defaultAudioSink].filter(n => n)
     }
 
-    readonly property var sinkAudio: Pipewire.defaultAudioSink?.audio ?? null
+    readonly property var sinkAudio: (Pipewire.defaultAudioSink && Pipewire.defaultAudioSink.audio) ? Pipewire.defaultAudioSink.audio : null
     readonly property int volNumber: sinkAudio ? Math.round(sinkAudio.volume * 100) : 0
     readonly property bool isMuted: sinkAudio ? sinkAudio.muted : false
     readonly property string volIcon: isMuted || volNumber === 0 ? "󰝟" : (volNumber < 50 ? "󰖀" : "󰕾")

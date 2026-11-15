@@ -37,7 +37,7 @@ PanelWindow {
         objects: [Pipewire.defaultAudioSink].filter(n => n)
     }
 
-    readonly property var sinkAudio: Pipewire.defaultAudioSink?.audio ?? null
+    readonly property var sinkAudio: (Pipewire.defaultAudioSink && Pipewire.defaultAudioSink.audio) ? Pipewire.defaultAudioSink.audio : null
 
     Connections {
         target: osdWindow.sinkAudio
