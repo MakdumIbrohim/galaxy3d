@@ -99,6 +99,30 @@ PanelWindow {
     property real sunValueY: 0.0
     readonly property real screenSunAngleDeg: Math.atan2(sunValueY, sunValueX) * 180 / Math.PI
 
+    // Workspace-Reactive Orbital Formation Profiles
+    // Automatically reconfigures the satellite constellation around the Moon when switching workspaces
+    readonly property int currentWsId: Hyprland.focusedWorkspace ? Hyprland.focusedWorkspace.id : 1
+    readonly property var orbitalProfiles: [
+        { scale: 1.00, tilt: 1.00, speedMult: 1.00, name: "Standard Orbital" },
+        { scale: 0.88, tilt: 1.40, speedMult: 1.15, name: "Inclined Polar" },
+        { scale: 1.14, tilt: 0.65, speedMult: 0.90, name: "Equatorial Wide" },
+        { scale: 1.05, tilt: 1.25, speedMult: 1.05, name: "Staggered Shell" },
+        { scale: 0.94, tilt: 0.85, speedMult: 1.10, name: "Synchronous Array" }
+    ]
+
+    readonly property var currentProfile: {
+        let idx = (Math.max(1, currentWsId) - 1) % orbitalProfiles.length;
+        return orbitalProfiles[idx];
+    }
+
+    property real activeOrbitScale: currentProfile.scale
+    property real activeOrbitTilt:  currentProfile.tilt
+    property real activeOrbitSpeed: currentProfile.speedMult
+
+    Behavior on activeOrbitScale { NumberAnimation { duration: 650; easing.type: Easing.OutBack; easing.overshoot: 1.15 } }
+    Behavior on activeOrbitTilt  { NumberAnimation { duration: 700; easing.type: Easing.OutCubic } }
+    Behavior on activeOrbitSpeed { NumberAnimation { duration: 500; easing.type: Easing.OutQuad } }
+
     Behavior on zoomFactor { NumberAnimation { duration: 600; easing.type: Easing.OutCubic } }
 
     Shortcut {
@@ -154,7 +178,7 @@ PanelWindow {
             root.earthAutoRotation = ((utcHrs / 24) * 2 * Math.PI - root.camY) % (Math.PI * 2);
             root.independentCometAngle = (root.independentCometAngle + 0.002) % (Math.PI * 2);
 
-            let baseSpeed = 0.0012;
+            let baseSpeed = 0.0012 * root.activeOrbitSpeed;
             let getFactor = (z) => {
                 if (z < -0.5) return 3.0;
                 if (z < 0) return 2.0;
@@ -356,8 +380,8 @@ PanelWindow {
                 PathArc {
                     x: root.width / 2 - (380 * root.zoomFactor)
                     y: root.height / 2 + (120 * root.zoomFactor)
-                    radiusX: 380 * root.zoomFactor
-                    radiusY: 180 * root.zoomFactor
+                    radiusX: 380 * root.zoomFactor * root.activeOrbitScale
+                    radiusY: 180 * root.zoomFactor * root.activeOrbitTilt
                     useLargeArc: false
                     direction: PathArc.Clockwise
                 }
@@ -394,8 +418,8 @@ PanelWindow {
         GaugeSatellite {
             id: gaugeSatellite
             angle: root.gaugeAngle + root.gaugeRepositionOffset
-            gaugeBaseY: root.gaugeBaseY
-            proj: root.project3D(Math.cos(angle) * orbitDistance, gaugeBaseY + Math.sin(angle) * 0.10, Math.sin(angle) * orbitDistance, true)
+            gaugeBaseY: root.gaugeBaseY * root.activeOrbitTilt
+            proj: root.project3D(Math.cos(angle) * (orbitDistance * root.activeOrbitScale), (gaugeBaseY + Math.sin(angle) * 0.10) * root.activeOrbitTilt, Math.sin(angle) * (orbitDistance * root.activeOrbitScale), true)
             originX: (windowContent.width / 2) + (earthSystem.earthProj.x * root.baseSphereRadius)
             originY: (windowContent.height / 2) + (earthSystem.earthProj.y * root.baseSphereRadius)
             earthSphereRadius: root.earthSphereRadius
@@ -427,7 +451,7 @@ PanelWindow {
             TelemetrySatellite {
                 id: telemetrySatellite
                 angle: root.telemetryAngle
-                proj: root.project3D(Math.cos(angle) * orbitDistance, Math.sin(angle) * 0.08, Math.sin(angle) * orbitDistance, true)
+                proj: root.project3D(Math.cos(angle) * (orbitDistance * root.activeOrbitScale), Math.sin(angle) * 0.08 * root.activeOrbitTilt, Math.sin(angle) * (orbitDistance * root.activeOrbitScale), true)
                 sphereRadius: root.sphereRadius
                 satelliteZoom: root.satelliteZoom
                 isSearchMode: root.isSearchMode
@@ -440,7 +464,7 @@ PanelWindow {
             SysInfoSatellite {
                 id: sysInfoSatellite
                 angle: root.sysInfoAngle
-                proj: root.project3D(Math.cos(angle) * orbitDistance, 0.42 + Math.cos(angle * 2.1 + 3.0) * 0.05, Math.sin(angle) * orbitDistance, true)
+                proj: root.project3D(Math.cos(angle) * (orbitDistance * root.activeOrbitScale), (0.42 + Math.cos(angle * 2.1 + 3.0) * 0.05) * root.activeOrbitTilt, Math.sin(angle) * (orbitDistance * root.activeOrbitScale), true)
                 sphereRadius: root.sphereRadius
                 satelliteZoom: root.satelliteZoom
                 isSearchMode: root.isSearchMode
@@ -469,7 +493,7 @@ PanelWindow {
             MusicSatellite {
                 id: musicSatellite
                 angle: root.musicAngle
-                proj: root.project3D(Math.cos(angle) * orbitDistance, -0.05 + Math.sin(angle * 2.5 + 4.0) * 0.045, Math.sin(angle) * orbitDistance, true)
+                proj: root.project3D(Math.cos(angle) * (orbitDistance * root.activeOrbitScale), (-0.05 + Math.sin(angle * 2.5 + 4.0) * 0.045) * root.activeOrbitTilt, Math.sin(angle) * (orbitDistance * root.activeOrbitScale), true)
                 sphereRadius: root.sphereRadius
                 satelliteZoom: root.satelliteZoom
                 isSearchMode: root.isSearchMode
@@ -482,7 +506,7 @@ PanelWindow {
             EasterEggSatellite {
                 id: easterEggSatellite
                 angle: root.easterEggAngle
-                proj: root.project3D(Math.cos(angle) * orbitDistance, 0.12 + Math.cos(angle * 3.0 + 2.0) * 0.04, Math.sin(angle) * orbitDistance, true)
+                proj: root.project3D(Math.cos(angle) * (orbitDistance * root.activeOrbitScale), (0.12 + Math.cos(angle * 3.0 + 2.0) * 0.04) * root.activeOrbitTilt, Math.sin(angle) * (orbitDistance * root.activeOrbitScale), true)
                 sphereRadius: root.sphereRadius
                 satelliteZoom: root.satelliteZoom
                 isSearchMode: root.isSearchMode
@@ -495,7 +519,7 @@ PanelWindow {
             TraySatellite {
                 id: traySatellite
                 angle: root.trayAngle
-                proj: root.project3D(Math.cos(angle) * orbitDistance, -0.30 + Math.sin(angle * 2.2 + 5.0) * 0.06, Math.sin(angle) * orbitDistance, true)
+                proj: root.project3D(Math.cos(angle) * (orbitDistance * root.activeOrbitScale), (-0.30 + Math.sin(angle * 2.2 + 5.0) * 0.06) * root.activeOrbitTilt, Math.sin(angle) * (orbitDistance * root.activeOrbitScale), true)
                 sphereRadius: root.sphereRadius
                 satelliteZoom: root.satelliteZoom
                 isSearchMode: root.isSearchMode
