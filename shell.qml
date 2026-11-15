@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
+import Quickshell.Hyprland
 import "services"
 import "modules/background"
 import "modules/bar"
@@ -203,5 +204,63 @@ ShellRoot {
         function toggle() { lockScreen.visible = !lockScreen.visible; }
         function open() { lockScreen.visible = true; }
         function close() { lockScreen.visible = false; }
+        function lock() { lockScreen.visible = true; }
+    }
+
+    // Hyprland Global Shortcuts (Super + L / dispatch global caelestia:lock)
+    GlobalShortcut {
+        appid: "caelestia"
+        name: "lock"
+        onPressed: ShellBridge.openLock()
+    }
+
+    GlobalShortcut {
+        appid: "galaxy3d"
+        name: "lock"
+        onPressed: ShellBridge.openLock()
+    }
+
+    // Hyprland Global Shortcuts for Session Menu
+    GlobalShortcut {
+        appid: "caelestia"
+        name: "session"
+        onPressed: ShellBridge.togglePower()
+    }
+
+    GlobalShortcut {
+        appid: "galaxy3d"
+        name: "session"
+        onPressed: ShellBridge.togglePower()
+    }
+
+    // Hyprland Global Shortcuts for Side Action Center / HUD
+    GlobalShortcut {
+        appid: "caelestia"
+        name: "sidebar"
+        onPressed: ShellBridge.toggleHud()
+    }
+
+    GlobalShortcut {
+        appid: "galaxy3d"
+        name: "sidebar"
+        onPressed: ShellBridge.toggleHud()
+    }
+
+    // Systemd logind lock-session listener (loginctl lock-session / lid close / idle)
+    Process {
+        id: logindLockWatcher
+        running: true
+        command: [
+            "dbus-monitor", "--system",
+            "type='signal',sender='org.freedesktop.login1',interface='org.freedesktop.login1.Session',member='Lock'"
+        ]
+        stdout: SplitParser {
+            splitMarker: "\n"
+            onRead: (line) => {
+                if (line.includes("member=Lock")) {
+                    ShellBridge.openLock();
+                }
+            }
+        }
     }
 }

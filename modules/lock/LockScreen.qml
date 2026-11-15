@@ -4,6 +4,7 @@ import QtQuick.Controls
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
+import Quickshell.Services.Pam
 import "../../theme"
 import "../../services"
 
@@ -62,7 +63,47 @@ PanelWindow {
         }
     }
 
-    // Authentication verification process
+    Timer {
+        id: focusTimer
+        interval: 80
+        repeat: false
+        onTriggered: {
+            passInput.forceActiveFocus();
+        }
+    }
+
+    // Native PAM Authentication
+    PamContext {
+        id: pamAuth
+        config: "login"
+
+        onPamMessage: {
+            if (responseRequired) {
+                respond(passInput.text);
+            }
+        }
+
+        onCompleted: (result) => {
+            if (result === PamResult.Success) {
+                lockWindow.isAuthenticating = false;
+                lockWindow.triggerUnlock();
+            } else {
+                // Distro fallback: try sudo verification before rejecting
+                authChecker.command = ["bash", "-c", "echo '" + passInput.text.replace(/'/g, "'\\''") + "' | timeout 3 sudo -S -v 2>/dev/null && echo 'OK' || echo 'FAIL'"];
+                authChecker.running = false;
+                authChecker.running = true;
+            }
+        }
+
+        onError: (err) => {
+            // PAM error fallback
+            authChecker.command = ["bash", "-c", "echo '" + passInput.text.replace(/'/g, "'\\''") + "' | timeout 3 sudo -S -v 2>/dev/null && echo 'OK' || echo 'FAIL'"];
+            authChecker.running = false;
+            authChecker.running = true;
+        }
+    }
+
+    // Authentication fallback process
     Process {
         id: authChecker
         stdout: StdioCollector {
@@ -74,6 +115,7 @@ PanelWindow {
                 } else {
                     lockWindow.authError = "Invalid Security Passphrase";
                     passInput.text = "";
+                    passInput.forceActiveFocus();
                 }
             }
         }
@@ -86,16 +128,15 @@ PanelWindow {
         }
         lockWindow.isAuthenticating = true;
         lockWindow.authError = "";
-        authChecker.command = ["bash", "-c", "echo '" + pass + "' | sudo -S -v 2>/dev/null && echo 'OK' || echo 'FAIL'"];
-        authChecker.running = false;
-        authChecker.running = true;
+        pamAuth.start();
     }
 
     onVisibleChanged: {
         if (visible) {
-            passInput.forceActiveFocus();
             authError = "";
             isUnlocking = false;
+            passInput.text = "";
+            focusTimer.restart();
         }
     }
 
@@ -109,6 +150,11 @@ PanelWindow {
 
         Behavior on opacity { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
         Behavior on scale { NumberAnimation { duration: 260; easing.type: Easing.OutCubic } }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: passInput.forceActiveFocus()
+        }
 
         // Twinkling Star Field Canvas
         Canvas {
@@ -278,6 +324,10 @@ PanelWindow {
                                 border.width: 1
                             }
                             onAccepted: lockWindow.verifyPassphrase(passInput.text)
+                            Keys.onEscapePressed: {
+                                passInput.text = "";
+                                lockWindow.authError = "";
+                            }
                         }
 
                         Rectangle {
