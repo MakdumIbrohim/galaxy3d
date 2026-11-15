@@ -129,6 +129,27 @@ PanelWindow {
 
     Behavior on zoomFactor { NumberAnimation { duration: 600; easing.type: Easing.OutCubic } }
 
+    // Dynamic Camera Zoom & Panoramic Dual-Body Balancing
+    readonly property real panoramicFactor: Math.max(0.0, Math.min(1.0, (1.0 - root.zoomFactor) / 0.45))
+
+    function togglePanoramicView() {
+        if (root.zoomFactor < 0.75) {
+            root.zoomFactor = 1.0;
+        } else {
+            root.zoomFactor = 0.55;
+        }
+    }
+
+    Shortcut {
+        sequence: "Space"
+        onActivated: root.togglePanoramicView()
+    }
+
+    Shortcut {
+        sequence: "Ctrl+0"
+        onActivated: root.zoomFactor = 1.0
+    }
+
     Shortcut {
         sequence: "Escape"
         enabled: root.weatherRingsActive
@@ -353,12 +374,11 @@ PanelWindow {
                     lastX = mouse.x;
                     lastY = mouse.y;
                 }
+                onDoubleClicked: root.togglePanoramicView()
                 onWheel: wheel => {
-                    if (wheel.modifiers & Qt.ControlModifier) {
-                        let zoomDelta = wheel.angleDelta.y > 0 ? 0.06 : -0.06;
-                        root.zoomFactor = Math.max(0.25, Math.min(3.0, root.zoomFactor + zoomDelta));
-                        wheel.accepted = true;
-                    }
+                    let zoomDelta = wheel.angleDelta.y > 0 ? 0.08 : -0.08;
+                    root.zoomFactor = Math.max(0.45, Math.min(2.5, root.zoomFactor + zoomDelta));
+                    wheel.accepted = true;
                 }
             }
         }
@@ -376,6 +396,8 @@ PanelWindow {
             opacity: 0.35
             z: -50000
 
+            readonly property real arcCenterX: (root.width / 2) + (root.panoramicFactor * (root.width * 0.14))
+
             ShapePath {
                 strokeColor: root.blue
                 strokeWidth: 1.2 * root.zoomFactor
@@ -383,11 +405,11 @@ PanelWindow {
                 dashPattern: [6, 8]
                 fillColor: "transparent"
 
-                startX: root.width / 2 - (380 * root.zoomFactor)
+                startX: orbitCurvePath.arcCenterX - (380 * root.zoomFactor * root.activeOrbitScale)
                 startY: root.height / 2 + (120 * root.zoomFactor)
 
                 PathArc {
-                    x: root.width / 2 - (380 * root.zoomFactor)
+                    x: orbitCurvePath.arcCenterX - (380 * root.zoomFactor * root.activeOrbitScale)
                     y: root.height / 2 + (120 * root.zoomFactor)
                     radiusX: 380 * root.zoomFactor * root.activeOrbitScale
                     radiusY: 180 * root.zoomFactor * root.activeOrbitTilt
@@ -429,8 +451,8 @@ PanelWindow {
             angle: root.gaugeAngle + root.gaugeRepositionOffset
             gaugeBaseY: root.gaugeBaseY * root.activeOrbitTilt
             proj: root.project3D(Math.cos(angle) * (orbitDistance * root.activeOrbitScale), (gaugeBaseY + Math.sin(angle) * 0.10) * root.activeOrbitTilt, Math.sin(angle) * (orbitDistance * root.activeOrbitScale), true)
-            originX: (windowContent.width / 2) + (earthSystem.earthProj.x * root.baseSphereRadius)
-            originY: (windowContent.height / 2) + (earthSystem.earthProj.y * root.baseSphereRadius)
+            originX: earthSystem.earthCenterX
+            originY: earthSystem.earthCenterY
             earthSphereRadius: root.earthSphereRadius
             satelliteZoom: root.satelliteZoom
             isSearchMode: root.isSearchMode
@@ -445,7 +467,7 @@ PanelWindow {
             width:  root.sphereRadius * 2
             height: root.sphereRadius * 2
             z: 1000
-            x: (parent.width - width) / 2
+            x: ((parent.width - width) / 2) + (root.panoramicFactor * (parent.width * 0.14))
             y: (parent.height - height) / 2
 
             MoonSphere {

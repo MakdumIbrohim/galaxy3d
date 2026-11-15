@@ -32,6 +32,13 @@ Item {
 
     MatugenColors { id: theme }
 
+    // Dynamic Camera Zoom & Panoramic Positioning
+    readonly property real panoramicFactor: Math.max(0.0, Math.min(1.0, (1.0 - root.earthZoom) / 0.45))
+    readonly property real normalX: -earthBase.width * 0.40
+    readonly property real panoramicX: parent ? Math.max(28, parent.width * 0.05) : 28
+    readonly property real earthCenterX: earthBase.x + earthBase.width / 2
+    readonly property real earthCenterY: earthBase.y + earthBase.height / 2
+
     // Spherical Atmosphere Glow Rings for Earth
     Item {
         x: earthBase.x
@@ -72,7 +79,7 @@ Item {
         radius: width / 2
         color: "#01030a"
 
-        x: -width * 0.40 - (root.mouseShiftX * 25)
+        x: (root.normalX + (root.panoramicX - root.normalX) * root.panoramicFactor) - (root.mouseShiftX * 25 * (1.0 - root.panoramicFactor * 0.5))
         y: (parent.height - height) / 2 - (root.mouseShiftY * 20)
         z: -100000
 
@@ -259,8 +266,8 @@ Item {
                                ? root.project3DFunc(b_x, b_y, b_z, true)
                                : ({ x: 0, y: 0, z: 0 })
 
-            x: (parent.width / 2) + (root.earthProj.x * root.baseSphereRadius) + (proj.x * root.earthSphereRadius) - width / 2
-            y: (parent.height / 2) + (root.earthProj.y * root.baseSphereRadius) + (proj.y * root.earthSphereRadius) - height / 2
+            x: root.earthCenterX + (proj.x * root.earthSphereRadius) - width / 2
+            y: root.earthCenterY + (proj.y * root.earthSphereRadius) - height / 2
             z: earthBase.z + Math.round(proj.z * 1000)
 
             opacity: root.weatherRingsActive ? (proj.z < -0.1 ? 0.35 : 1.0) : 0.0
