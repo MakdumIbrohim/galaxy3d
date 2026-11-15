@@ -321,15 +321,12 @@ Item {
             let name = appModel.get(i).name.toLowerCase();
             let execCmd = (appModel.get(i).exec || "").toLowerCase();
             if (name === window.searchQuery || name.startsWith(window.searchQuery) || execCmd.includes(window.searchQuery)) {
-                let prevIdx = window.selectedAppIndex;
-                window.selectedAppName  = appModel.get(i).name;
-                window.selectedAppIcon  = appModel.get(i).icon || "";
-                window.selectedAppExec  = appModel.get(i).exec || "";
-                centerOnApp(i);
-                window.sphereZoom = 1.65;
-                if (prevIdx === i) {
-                    selectedSatelliteContainer.triggerEntrance();
-                } else {
+                if (window.selectedAppIndex !== i) {
+                    window.selectedAppName  = appModel.get(i).name;
+                    window.selectedAppIcon  = appModel.get(i).icon || "";
+                    window.selectedAppExec  = appModel.get(i).exec || "";
+                    centerOnApp(i);
+                    window.sphereZoom = 1.65;
                     window.selectedAppIndex = i;
                 }
                 found = true;
@@ -340,15 +337,12 @@ Item {
         if (!found) {
             for (let i = 0; i < appModel.count; i++) {
                 if (appModel.get(i).name.toLowerCase().includes(window.searchQuery)) {
-                    let prevIdx = window.selectedAppIndex;
-                    window.selectedAppName  = appModel.get(i).name;
-                    window.selectedAppIcon  = appModel.get(i).icon || "";
-                    window.selectedAppExec  = appModel.get(i).exec || "";
-                    centerOnApp(i);
-                    window.sphereZoom = 1.65;
-                    if (prevIdx === i) {
-                        selectedSatelliteContainer.triggerEntrance();
-                    } else {
+                    if (window.selectedAppIndex !== i) {
+                        window.selectedAppName  = appModel.get(i).name;
+                        window.selectedAppIcon  = appModel.get(i).icon || "";
+                        window.selectedAppExec  = appModel.get(i).exec || "";
+                        centerOnApp(i);
+                        window.sphereZoom = 1.65;
                         window.selectedAppIndex = i;
                     }
                     found = true;
@@ -579,86 +573,28 @@ Item {
             }
         }
 
-        // Empty state displayed over the Moon when search yields no matches
+        // Damaged satellite displayed over the Moon when search yields no matches
         Item {
             id: emptySearchContainer
             anchors.centerIn: parent
-            width: window.s(320)
-            height: window.s(170)
+            width: damagedSat.satW
+            height: damagedSat.satH
             z: 1100
+            transformOrigin: Item.Center
 
             property bool showEmpty: window.searchQuery !== "" && window.selectedAppIndex === -1 && window.introPhase > 0.1
 
             opacity: showEmpty ? 1.0 : 0.0
-            scale: showEmpty ? 1.0 : 0.75
-            visible: opacity > 0.01
+            scale: showEmpty ? 1.25 : 0.70
+            visible: opacity > 0.005
 
-            Behavior on opacity { NumberAnimation { duration: 280; easing.type: Easing.OutCubic } }
-            Behavior on scale   { NumberAnimation { duration: 320; easing.type: Easing.OutBack  } }
+            Behavior on opacity { NumberAnimation { duration: 320; easing.type: Easing.OutCubic } }
+            Behavior on scale   { NumberAnimation { duration: 380; easing.type: Easing.OutBack  } }
 
-            Rectangle {
-                anchors.fill: parent
-                radius: window._s16
-                color: Qt.rgba(window.mantle.r, window.mantle.g, window.mantle.b, 0.82)
-                border.color: Qt.rgba(window.surface2.r, window.surface2.g, window.surface2.b, 0.55)
-                border.width: 1.5
-
-                ColumnLayout {
-                    anchors.centerIn: parent
-                    anchors.margins: window._s16
-                    spacing: window._s8
-                    width: parent.width - window._s40
-
-                    Rectangle {
-                        Layout.alignment: Qt.AlignHCenter
-                        width: window.s(44)
-                        height: window.s(44)
-                        radius: width / 2
-                        color: Qt.rgba(window.surface0.r, window.surface0.g, window.surface0.b, 0.7)
-                        border.color: Qt.rgba(window.overlay0.r, window.overlay0.g, window.overlay0.b, 0.4)
-                        border.width: 1
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: "󰮐"
-                            font.family: "JetBrains Mono Nerd Font, Symbols Nerd Font, monospace"
-                            font.pixelSize: window.s(20)
-                            color: window.peach
-                        }
-                    }
-
-                    Text {
-                        Layout.alignment: Qt.AlignHCenter
-                        Layout.fillWidth: true
-                        text: "Application Not Found"
-                        font.family: "JetBrains Mono"
-                        font.pixelSize: window._s15
-                        font.weight: Font.Bold
-                        color: window.text
-                        horizontalAlignment: Text.AlignHCenter
-                        elide: Text.ElideRight
-                    }
-
-                    Text {
-                        Layout.alignment: Qt.AlignHCenter
-                        Layout.fillWidth: true
-                        text: "No results found for \"" + window.searchQuery + "\""
-                        font.family: "JetBrains Mono"
-                        font.pixelSize: window._s11
-                        color: window.subtext0
-                        horizontalAlignment: Text.AlignHCenter
-                        elide: Text.ElideMiddle
-                    }
-
-                    Text {
-                        Layout.alignment: Qt.AlignHCenter
-                        text: "Check your spelling or try different keywords"
-                        font.family: "JetBrains Mono"
-                        font.pixelSize: window.s(10)
-                        color: window.overlay0
-                        horizontalAlignment: Text.AlignHCenter
-                    }
-                }
+            DamagedSatelliteItem {
+                id: damagedSat
+                anchors.centerIn: parent
+                searchQuery: window.searchQuery
             }
         }
     }
