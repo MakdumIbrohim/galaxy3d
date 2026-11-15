@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Qt5Compat.GraphicalEffects
+import Quickshell.Services.Mpris
 import "../../../theme"
 
 Item {
@@ -39,7 +40,22 @@ Item {
     readonly property real earthCenterX: earthBase.x + earthBase.width / 2
     readonly property real earthCenterY: earthBase.y + earthBase.height / 2
 
-    // Spherical Atmosphere Glow Rings for Earth
+    // Audio-reactive rhythm pulsing
+    readonly property var activePlayer: (Mpris.players && Mpris.players.values && Mpris.players.values.length > 0)
+        ? Mpris.players.values[0]
+        : null
+    readonly property bool isMusicPlaying: (activePlayer && activePlayer.isPlaying) ? true : false
+
+    property real audioPulse: 0.0
+
+    SequentialAnimation on audioPulse {
+        running: root.isMusicPlaying
+        loops: Animation.Infinite
+        NumberAnimation { to: 1.0; duration: 600; easing.type: Easing.OutSine }
+        NumberAnimation { to: 0.0; duration: 700; easing.type: Easing.InOutSine }
+    }
+
+    // Spherical Atmosphere Glow Rings for Earth (Audio-Reactive)
     Item {
         x: earthBase.x
         y: earthBase.y
@@ -51,24 +67,24 @@ Item {
             anchors.fill: parent
             radius: width / 2
             color: "transparent"
-            border.color: Qt.rgba(theme.blue.r, theme.blue.g, theme.blue.b, 0.35)
-            border.width: 14 * root.earthZoom
+            border.color: Qt.rgba(theme.blue.r, theme.blue.g, theme.blue.b, 0.35 + 0.15 * root.audioPulse)
+            border.width: (14 + 6 * root.audioPulse) * root.earthZoom
         }
         Rectangle {
             anchors.fill: parent
-            anchors.margins: -18 * root.earthZoom
+            anchors.margins: - (18 + 12 * root.audioPulse) * root.earthZoom
             radius: width / 2
             color: "transparent"
-            border.color: Qt.rgba(theme.sapphire.r, theme.sapphire.g, theme.sapphire.b, 0.18)
-            border.width: 25 * root.earthZoom
+            border.color: Qt.rgba(theme.sapphire.r, theme.sapphire.g, theme.sapphire.b, 0.18 + 0.18 * root.audioPulse)
+            border.width: (25 + 10 * root.audioPulse) * root.earthZoom
         }
         Rectangle {
             anchors.fill: parent
-            anchors.margins: -45 * root.earthZoom
+            anchors.margins: - (45 + 24 * root.audioPulse) * root.earthZoom
             radius: width / 2
             color: "transparent"
-            border.color: Qt.rgba(theme.blue.r, theme.blue.g, theme.blue.b, 0.08)
-            border.width: 45 * root.earthZoom
+            border.color: Qt.rgba(theme.blue.r, theme.blue.g, theme.blue.b, 0.08 + 0.12 * root.audioPulse)
+            border.width: (45 + 18 * root.audioPulse) * root.earthZoom
         }
     }
 

@@ -411,7 +411,7 @@ PanelWindow {
             anchors.fill: parent
             layer.enabled: true
             layer.samples: 4
-            opacity: 0.35
+            opacity: 0.35 + (earthSystem ? 0.25 * earthSystem.audioPulse : 0.0)
             z: -50000
 
             readonly property real arcCenterX: root.width / 2
