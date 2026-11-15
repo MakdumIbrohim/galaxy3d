@@ -1,2 +1,3 @@
 singleton ShellBridge 1.0 ShellBridge.qml
+singleton SoundEffects 1.0 SoundEffects.qml
 Caching 1.0 Caching.qml

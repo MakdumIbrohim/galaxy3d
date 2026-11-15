@@ -272,8 +272,12 @@ Item {
     onSelectedAppIndexChanged: {
         if (window.selectedAppIndex >= 0) {
             selectedSatelliteContainer.triggerEntrance();
+            SoundEffects.playAppFound();
         } else {
             selectedSatelliteContainer.triggerExit();
+            if (window.searchQuery !== "") {
+                SoundEffects.playNoMatch();
+            }
         }
     }
 
@@ -363,6 +367,7 @@ Item {
 
     function launchApp(appName, execStr) {
         if (!execStr) return;
+        SoundEffects.playLaunch();
         let cleanCmd = execStr.replace(/%[fFuUdDnNickvm]/g, "").trim();
         Hyprland.dispatch("exec " + cleanCmd);
         window.closeLauncher();
