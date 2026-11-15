@@ -266,8 +266,16 @@ Item {
         implicitWidth: centerRow.implicitWidth + 28
         radius: 12
         color: Qt.rgba(theme.mantle.r, theme.mantle.g, theme.mantle.b, 0.82)
-        border.color: Qt.rgba(theme.teal.r, theme.teal.g, theme.teal.b, 0.32)
+        border.color: clockMa.containsMouse ? theme.accent : Qt.rgba(theme.teal.r, theme.teal.g, theme.teal.b, 0.32)
         border.width: 1.2
+
+        MouseArea {
+            id: clockMa
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: ShellBridge.toggleHud()
+        }
 
         RowLayout {
             id: centerRow

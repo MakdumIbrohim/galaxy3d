@@ -26,6 +26,14 @@ Item {
     signal openMedia()
     signal closeMedia()
 
+    signal toggleHud()
+    signal openHud()
+    signal closeHud()
+
+    signal toggleLock()
+    signal openLock()
+    signal closeLock()
+
     signal randomWallpaper()
     signal wallpaperChanged(string path)
 
@@ -35,6 +43,9 @@ Item {
     property string topbarStyle: "cyber"
     property string currentWallpaper: ""
     property bool dndEnabled: false
+    property bool nightLightEnabled: false
+    property int nightLightTemp: 4500
+    property bool sfxEnabled: true
 
     Caching { id: paths }
 
@@ -86,5 +97,20 @@ Item {
     function setDnd(enabled) {
         root.dndEnabled = enabled;
         Quickshell.execDetached(["bash", "-c", "echo '" + (enabled ? "1" : "0") + "' > " + paths.configDir + "/dnd.conf"]);
+    }
+
+    function setNightLight(enabled, tempK) {
+        root.nightLightEnabled = enabled;
+        if (tempK) root.nightLightTemp = tempK;
+        if (enabled) {
+            Quickshell.execDetached(["bash", "-c", "pkill -f 'hyprsunset|wlsunset' 2>/dev/null ; (hyprsunset -t " + root.nightLightTemp + " 2>/dev/null || wlsunset -t " + root.nightLightTemp + " 2>/dev/null) &"]);
+        } else {
+            Quickshell.execDetached(["bash", "-c", "pkill -f 'hyprsunset|wlsunset' 2>/dev/null || true"]);
+        }
+    }
+
+    function setSfx(enabled) {
+        root.sfxEnabled = enabled;
+        Quickshell.execDetached(["bash", "-c", "echo '" + (enabled ? "1" : "0") + "' > " + paths.configDir + "/sfx.conf"]);
     }
 }

@@ -9,6 +9,7 @@ import "modules/launcher"
 import "modules/notifications"
 import "modules/settings"
 import "modules/osd"
+import "modules/hud"
 
 ShellRoot {
     id: root
@@ -51,6 +52,11 @@ ShellRoot {
     // Interactive Media Player Popup Flyout
     MediaPopup {
         id: mediaPopup
+    }
+
+    // Flight Control HUD / Side Action Center
+    SideActionCenter {
+        id: sideHud
     }
 
     // 3D Orbital App Launcher Overlay
@@ -127,6 +133,10 @@ ShellRoot {
         function onToggleMedia()    { mediaPopup.visible = !mediaPopup.visible; }
         function onOpenMedia()      { mediaPopup.visible = true; }
         function onCloseMedia()     { mediaPopup.visible = false; }
+
+        function onToggleHud()      { sideHud.visible = !sideHud.visible; }
+        function onOpenHud()        { sideHud.visible = true; }
+        function onCloseHud()       { sideHud.visible = false; }
     }
 
     // IPC handler for Super / Super+A
@@ -167,5 +177,13 @@ ShellRoot {
         function toggle() { mediaPopup.visible = !mediaPopup.visible; }
         function open() { mediaPopup.visible = true; }
         function close() { mediaPopup.visible = false; }
+    }
+
+    // IPC handler for Flight Control HUD
+    IpcHandler {
+        target: "hud"
+        function toggle() { sideHud.visible = !sideHud.visible; }
+        function open() { sideHud.visible = true; }
+        function close() { sideHud.visible = false; }
     }
 }

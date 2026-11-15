@@ -143,23 +143,38 @@ Item {
         }
 
         // Center Section: Tactical Timecode
-        RowLayout {
+        Item {
             anchors.centerIn: parent
-            spacing: 8
+            implicitWidth: tacCenterRow.implicitWidth
+            implicitHeight: tacCenterRow.implicitHeight
 
-            Text {
-                text: "SYS.TIME // " + root.timeStr
-                font.family: "JetBrains Mono"
-                font.weight: Font.Bold
-                font.pixelSize: 11
-                color: "#ffffff"
+            RowLayout {
+                id: tacCenterRow
+                anchors.fill: parent
+                spacing: 8
+
+                Text {
+                    text: "SYS.TIME // " + root.timeStr
+                    font.family: "JetBrains Mono"
+                    font.weight: Font.Bold
+                    font.pixelSize: 11
+                    color: tacMa.containsMouse ? theme.accent : "#ffffff"
+                }
+
+                Text {
+                    text: "• " + root.dateStr + " • " + root.weatherDisplay
+                    font.family: "JetBrains Mono"
+                    font.pixelSize: 10
+                    color: theme.subtext0
+                }
             }
 
-            Text {
-                text: "• " + root.dateStr + " • " + root.weatherDisplay
-                font.family: "JetBrains Mono"
-                font.pixelSize: 10
-                color: theme.subtext0
+            MouseArea {
+                id: tacMa
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: ShellBridge.toggleHud()
             }
         }
 

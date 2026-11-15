@@ -83,4 +83,10 @@ Rectangle {
             color: "#89b4fa"
         }
     }
+
+    MouseArea {
+        anchors.fill: parent
+        cursorShape: Qt.PointingHandCursor
+        onClicked: ShellBridge.toggleHud()
+    }
 }
