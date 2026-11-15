@@ -7,6 +7,7 @@ Item {
 
     property string appName: ""
     property string appIcon: ""
+    property real panelDeploy: 1.0
 
     MatugenColors { id: colors }
     Scaler { id: scaler; currentWidth: Screen.width }
@@ -16,26 +17,26 @@ Item {
         return res > 0 ? res : val;
     }
 
-    readonly property real _sat_hullW:     s(216)
-    readonly property real _sat_hullH:     s(148)
-    readonly property real _sat_panelW:    s(64)
-    readonly property real _sat_panelH:    s(51)
-    readonly property real _sat_strutW:    s(10)
-    readonly property real _sat_strutH:    s(4)
-    readonly property real _sat_antennaH:  s(16)
-    readonly property real _sat_thrusterH: s(11)
-    readonly property real _sat_radius12:  s(10)
-    readonly property real _sat_radius8:   s(7)
-    readonly property real _sat_radius4:   s(3)
-    readonly property real _sat_antBall:   s(6)
-    readonly property real _sat_antStick:  s(2)
-    readonly property real _sat_antOffX:   s(14)
-    readonly property real _sat_screenM:   s(8)
-    readonly property real _sat_innerM:    s(10)
-    readonly property real _sat_iconSz:    s(40)
-    readonly property real _sat_fontSize:  s(10)
-    readonly property real _sat_thrBase:   s(16)
-    readonly property real _sat_spacing:   s(5)
+    readonly property real _sat_hullW:     s(270)
+    readonly property real _sat_hullH:     s(185)
+    readonly property real _sat_panelW:    s(80)
+    readonly property real _sat_panelH:    s(64)
+    readonly property real _sat_strutW:    s(12)
+    readonly property real _sat_strutH:    s(5)
+    readonly property real _sat_antennaH:  s(20)
+    readonly property real _sat_thrusterH: s(14)
+    readonly property real _sat_radius12:  s(12)
+    readonly property real _sat_radius8:   s(8)
+    readonly property real _sat_radius4:   s(4)
+    readonly property real _sat_antBall:   s(8)
+    readonly property real _sat_antStick:  s(3)
+    readonly property real _sat_antOffX:   s(18)
+    readonly property real _sat_screenM:   s(10)
+    readonly property real _sat_innerM:    s(12)
+    readonly property real _sat_iconSz:    s(52)
+    readonly property real _sat_fontSize:  s(12)
+    readonly property real _sat_thrBase:   s(20)
+    readonly property real _sat_spacing:   s(6)
     readonly property real _s2:            s(2)
 
     readonly property real satW: _sat_panelW + _sat_strutW + _sat_hullW + _sat_strutW + _sat_panelW
@@ -50,6 +51,9 @@ Item {
         height: root._sat_panelH
         anchors.right: lStrut.left
         anchors.verticalCenter: hull.verticalCenter
+        transformOrigin: Item.Right
+        scale: 0.2 + 0.8 * root.panelDeploy
+        opacity: Math.max(0.0, Math.min(1.0, root.panelDeploy * 1.25))
         color: colors.mantle
         border.color: Qt.alpha(colors.surface2, 0.4)
         border.width: 1
@@ -74,7 +78,7 @@ Item {
 
     Rectangle {
         id: lStrut
-        width: root._sat_strutW
+        width: Math.max(1, root._sat_strutW * root.panelDeploy)
         height: root._sat_strutH
         anchors.right: hull.left
         anchors.verticalCenter: hull.verticalCenter
@@ -91,6 +95,20 @@ Item {
         border.color: Qt.alpha(colors.surface1, 0.6)
         border.width: 1.5
         radius: root._sat_radius12
+
+        // Radar lock-on targeting pulse
+        Rectangle {
+            anchors.centerIn: parent
+            width: parent.width + root.s(26)
+            height: parent.height + root.s(26)
+            radius: root._sat_radius12 + root.s(13)
+            color: "transparent"
+            border.color: colors.blue
+            border.width: 1.5
+            scale: 0.85 + 0.35 * (1.0 - Math.min(1.0, root.panelDeploy))
+            opacity: Math.max(0.0, (1.0 - root.panelDeploy) * 0.85)
+            visible: opacity > 0.01
+        }
 
         Rectangle {
             width: root._sat_antStick
@@ -177,6 +195,9 @@ Item {
         height: root._sat_panelH
         anchors.left: rStrut.right
         anchors.verticalCenter: hull.verticalCenter
+        transformOrigin: Item.Left
+        scale: 0.2 + 0.8 * root.panelDeploy
+        opacity: Math.max(0.0, Math.min(1.0, root.panelDeploy * 1.25))
         color: colors.mantle
         border.color: Qt.alpha(colors.surface2, 0.4)
         border.width: 1
@@ -201,7 +222,7 @@ Item {
 
     Rectangle {
         id: rStrut
-        width: root._sat_strutW
+        width: Math.max(1, root._sat_strutW * root.panelDeploy)
         height: root._sat_strutH
         anchors.left: hull.right
         anchors.verticalCenter: hull.verticalCenter

@@ -71,27 +71,27 @@ Item {
     readonly property real _s74:  window.s(74)
     readonly property real _s104: window.s(104)
 
-    // Satellite-specific pre-scaled constants (all ~20% smaller than original)
-    readonly property real _sat_hullW:     window.s(216)   // was 270
-    readonly property real _sat_hullH:     window.s(148)   // was 185
-    readonly property real _sat_panelW:    window.s(64)    // was 80
-    readonly property real _sat_panelH:    window.s(51)    // was 64
-    readonly property real _sat_strutW:    window.s(10)    // was 12
-    readonly property real _sat_strutH:    window.s(4)     // was 5
-    readonly property real _sat_antennaH:  window.s(16)    // was 20
-    readonly property real _sat_thrusterH: window.s(11)    // was 14
-    readonly property real _sat_radius12:  window.s(10)    // was 12
-    readonly property real _sat_radius8:   window.s(7)     // was 8
-    readonly property real _sat_radius4:   window.s(3)     // was 4
-    readonly property real _sat_antBall:   window.s(6)     // was 8
-    readonly property real _sat_antStick:  window.s(2)     // was 3
-    readonly property real _sat_antOffX:   window.s(14)    // was 18
-    readonly property real _sat_screenM:   window.s(8)     // was 10
-    readonly property real _sat_innerM:    window.s(10)    // was 12
-    readonly property real _sat_iconSz:    window.s(40)    // was 50
-    readonly property real _sat_fontSize:  window.s(10)    // was 12
-    readonly property real _sat_thrBase:   window.s(16)    // was 20
-    readonly property real _sat_spacing:   window.s(5)     // was 6
+    // Satellite-specific original full-scale dimensions
+    readonly property real _sat_hullW:     window.s(270)
+    readonly property real _sat_hullH:     window.s(185)
+    readonly property real _sat_panelW:    window.s(80)
+    readonly property real _sat_panelH:    window.s(64)
+    readonly property real _sat_strutW:    window.s(12)
+    readonly property real _sat_strutH:    window.s(5)
+    readonly property real _sat_antennaH:  window.s(20)
+    readonly property real _sat_thrusterH: window.s(14)
+    readonly property real _sat_radius12:  window.s(12)
+    readonly property real _sat_radius8:   window.s(8)
+    readonly property real _sat_radius4:   window.s(4)
+    readonly property real _sat_antBall:   window.s(8)
+    readonly property real _sat_antStick:  window.s(3)
+    readonly property real _sat_antOffX:   window.s(18)
+    readonly property real _sat_screenM:   window.s(10)
+    readonly property real _sat_innerM:    window.s(12)
+    readonly property real _sat_iconSz:    window.s(52)
+    readonly property real _sat_fontSize:  window.s(12)
+    readonly property real _sat_thrBase:   window.s(20)
+    readonly property real _sat_spacing:   window.s(6)
 
     property real baseSphereRadius: 265
     property real sphereZoom: 1.0
@@ -229,6 +229,10 @@ Item {
         searchContainer.text = "";
         window.searchQuery = "";
         window.selectedAppIndex = -1;
+        selectedSatelliteContainer.satScale = 0.0;
+        selectedSatelliteContainer.satOpacity = 0.0;
+        selectedSatelliteContainer.satAnimOffsetY = 40;
+        selectedSatelliteContainer.satPanelDeploy = 0.0;
         window.sphereZoom = 1.0;
         searchContainer.forceActiveFocus();
         openAnim.restart();
@@ -237,6 +241,7 @@ Item {
     function closeLauncher() {
         if (!window.isOpen && !openAnim.running) return;
         window.isOpen = false;
+        selectedSatelliteContainer.triggerExit();
         openAnim.stop();
         closeAnim.restart();
     }
@@ -258,6 +263,14 @@ Item {
     property var    allApps: []
     property string searchQuery: ""
     property int    selectedAppIndex: -1
+
+    onSelectedAppIndexChanged: {
+        if (window.selectedAppIndex >= 0) {
+            selectedSatelliteContainer.triggerEntrance();
+        } else {
+            selectedSatelliteContainer.triggerExit();
+        }
+    }
 
     property string selectedAppName: ""
     property string selectedAppIcon: ""
@@ -308,12 +321,17 @@ Item {
             let name = appModel.get(i).name.toLowerCase();
             let execCmd = (appModel.get(i).exec || "").toLowerCase();
             if (name === window.searchQuery || name.startsWith(window.searchQuery) || execCmd.includes(window.searchQuery)) {
-                window.selectedAppIndex = i;
+                let prevIdx = window.selectedAppIndex;
                 window.selectedAppName  = appModel.get(i).name;
                 window.selectedAppIcon  = appModel.get(i).icon || "";
                 window.selectedAppExec  = appModel.get(i).exec || "";
                 centerOnApp(i);
                 window.sphereZoom = 1.65;
+                if (prevIdx === i) {
+                    selectedSatelliteContainer.triggerEntrance();
+                } else {
+                    window.selectedAppIndex = i;
+                }
                 found = true;
                 break;
             }
@@ -322,12 +340,17 @@ Item {
         if (!found) {
             for (let i = 0; i < appModel.count; i++) {
                 if (appModel.get(i).name.toLowerCase().includes(window.searchQuery)) {
-                    window.selectedAppIndex = i;
+                    let prevIdx = window.selectedAppIndex;
                     window.selectedAppName  = appModel.get(i).name;
                     window.selectedAppIcon  = appModel.get(i).icon || "";
                     window.selectedAppExec  = appModel.get(i).exec || "";
                     centerOnApp(i);
                     window.sphereZoom = 1.65;
+                    if (prevIdx === i) {
+                        selectedSatelliteContainer.triggerEntrance();
+                    } else {
+                        window.selectedAppIndex = i;
+                    }
                     found = true;
                     break;
                 }
@@ -431,24 +454,122 @@ Item {
         Item {
             id: selectedSatelliteContainer
             anchors.centerIn: parent
+            anchors.verticalCenterOffset: satAnimOffsetY
             width: satItem.satW
             height: satItem.satH
             z: 1100
+            transformOrigin: Item.Center
 
-            property bool showSatellite: window.selectedAppIndex >= 0 && window.introPhase > 0.1
+            property real satScale: 0.0
+            property real satOpacity: 0.0
+            property real satAnimOffsetY: 40
+            property real satPanelDeploy: 0.0
 
-            opacity: showSatellite ? 1.0 : 0.0
-            scale: showSatellite ? 1.0 : 0.70
-            visible: opacity > 0.01
+            scale: satScale
+            opacity: satOpacity * Math.min(1.0, window.introPhase * 1.5)
+            visible: opacity > 0.005
 
-            Behavior on opacity { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
-            Behavior on scale   { NumberAnimation { duration: 350; easing.type: Easing.OutBack  } }
+            function triggerEntrance() {
+                satExitAnim.stop();
+                satEntranceAnim.stop();
+                satScale = 0.25;
+                satOpacity = 0.0;
+                satAnimOffsetY = 38;
+                satPanelDeploy = 0.0;
+                satEntranceAnim.restart();
+            }
+
+            function triggerExit() {
+                satEntranceAnim.stop();
+                satExitAnim.stop();
+                satExitAnim.restart();
+            }
+
+            ParallelAnimation {
+                id: satEntranceAnim
+
+                NumberAnimation {
+                    target: selectedSatelliteContainer
+                    property: "satScale"
+                    from: 0.30
+                    to: 1.25
+                    duration: 440
+                    easing.type: Easing.OutBack
+                    easing.overshoot: 1.35
+                }
+
+                NumberAnimation {
+                    target: selectedSatelliteContainer
+                    property: "satOpacity"
+                    from: 0.0
+                    to: 1.0
+                    duration: 320
+                    easing.type: Easing.OutCubic
+                }
+
+                NumberAnimation {
+                    target: selectedSatelliteContainer
+                    property: "satAnimOffsetY"
+                    from: 38
+                    to: 0
+                    duration: 440
+                    easing.type: Easing.OutBack
+                    easing.overshoot: 1.15
+                }
+
+                NumberAnimation {
+                    target: selectedSatelliteContainer
+                    property: "satPanelDeploy"
+                    from: 0.0
+                    to: 1.0
+                    duration: 520
+                    easing.type: Easing.OutBack
+                    easing.overshoot: 1.25
+                }
+            }
+
+            ParallelAnimation {
+                id: satExitAnim
+
+                NumberAnimation {
+                    target: selectedSatelliteContainer
+                    property: "satScale"
+                    to: 0.55
+                    duration: 250
+                    easing.type: Easing.InCubic
+                }
+
+                NumberAnimation {
+                    target: selectedSatelliteContainer
+                    property: "satOpacity"
+                    to: 0.0
+                    duration: 220
+                    easing.type: Easing.OutCubic
+                }
+
+                NumberAnimation {
+                    target: selectedSatelliteContainer
+                    property: "satAnimOffsetY"
+                    to: -25
+                    duration: 250
+                    easing.type: Easing.InCubic
+                }
+
+                NumberAnimation {
+                    target: selectedSatelliteContainer
+                    property: "satPanelDeploy"
+                    to: 0.0
+                    duration: 220
+                    easing.type: Easing.InCubic
+                }
+            }
 
             SatelliteItem {
                 id: satItem
                 anchors.centerIn: parent
                 appName: window.selectedAppName
                 appIcon: window.selectedAppIcon
+                panelDeploy: selectedSatelliteContainer.satPanelDeploy
             }
 
             MouseArea {
