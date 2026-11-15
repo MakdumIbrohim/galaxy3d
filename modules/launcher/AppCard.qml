@@ -50,13 +50,13 @@ Item {
     }
 
     property real _hz: Math.max(0.0, Math.min(1.0, proj.z * 3.5))
-    opacity: (appNode.searchQuery === "" ? (proj.z > -0.05 ? _hz : 0.0) : (isMatch ? 1.0 : 0.05))
-    Behavior on opacity { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
+    opacity: appNode.isSelected ? 0.0 : (appNode.searchQuery === "" ? (proj.z > -0.05 ? _hz : 0.0) : (isMatch ? 0.85 : 0.05))
+    Behavior on opacity { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
 
-    visible: (proj.z > -0.05) && (appNode.searchQuery === "" ? (opacity > 0.02) : isMatch)
+    visible: !appNode.isSelected && (proj.z > -0.05) && (appNode.searchQuery === "" ? (opacity > 0.02) : isMatch)
 
-    property real _baseScale: isMatch && appNode.searchQuery !== "" ? 1.25 : (0.75 + (Math.max(0.0, proj.z) * 0.35))
-    scale: isSelected ? 1.4 : (_baseScale * ((nodeMa.containsMouse && !isSelected) ? 1.15 : 1.0))
+    property real _baseScale: isMatch && appNode.searchQuery !== "" ? 1.15 : (0.75 + (Math.max(0.0, proj.z) * 0.35))
+    scale: _baseScale * (nodeMa.containsMouse ? 1.15 : 1.0)
     Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
 
     property real _xNorm: proj.x / (appNode.sphereRadius / s(310.5))
@@ -65,13 +65,13 @@ Item {
     transform: [
         Rotation {
             axis { x: 1; y: 0; z: 0 }
-            angle: appNode.isSelected ? 0 : -appNode._yNorm * 45
+            angle: -appNode._yNorm * 45
             origin.x: appNode.width  / 2
             origin.y: appNode.height / 2
         },
         Rotation {
             axis { x: 0; y: 1; z: 0 }
-            angle: appNode.isSelected ? 0 : appNode._xNorm * 35
+            angle: appNode._xNorm * 35
             origin.x: appNode.width  / 2
             origin.y: appNode.height / 2
         }
@@ -84,10 +84,9 @@ Item {
         anchors.fill: parent
         radius: appNode._s12
         color: "transparent"
-        border.color: nodeMa.containsMouse && !appNode.isSelected ? theme.surface2 : "transparent"
+        border.color: nodeMa.containsMouse ? theme.surface2 : "transparent"
         border.width: appNode._s2
         Behavior on color { ColorAnimation { duration: 200 } }
-        visible: !appNode.isSelected
 
         ColumnLayout {
             anchors.fill: parent
@@ -127,24 +126,6 @@ Item {
                     verticalAlignment:   Text.AlignVCenter
                     elide: Text.ElideRight
                 }
-            }
-        }
-    }
-
-    Loader {
-        id: satLoader
-        anchors.centerIn: parent
-        active: appNode.isSelected
-        opacity: appNode.isSelected ? 1.0 : 0.0
-        scale:   appNode.isSelected ? 1.5 : 0.4
-
-        Behavior on opacity { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
-        Behavior on scale   { NumberAnimation { duration: 450; easing.type: Easing.OutBack  } }
-
-        sourceComponent: Component {
-            SatelliteItem {
-                appName: appNode.selectedAppName
-                appIcon: appNode.selectedAppIcon
             }
         }
     }

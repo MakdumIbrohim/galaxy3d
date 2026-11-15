@@ -127,15 +127,15 @@ Item {
             let b_x      = Math.cos(b_theta) * b_radius;
             let b_z      = Math.sin(b_theta) * b_radius;
 
-            // Rotate X
-            let y1 = b_y * cosRx - b_z * sinRx;
-            let z1 = b_y * sinRx + b_z * cosRx;
+            // Rotate Y (longitude)
+            let x1 = b_x * cosRy + b_z * sinRy;
+            let z1 = -b_x * sinRy + b_z * cosRy;
 
-            // Rotate Y
-            let x2 = b_x * cosRy + z1 * sinRy;
-            let z2 = -b_x * sinRy + z1 * cosRy;
+            // Rotate X (latitude tilt)
+            let y2 = b_y * cosRx - z1 * sinRx;
+            let z2 = b_y * sinRx + z1 * cosRx;
 
-            arr[i] = { x: x2, y: y1, z: z2 };
+            arr[i] = { x: x1, y: y2, z: z2 };
         }
         window.projCache = arr;
     }
@@ -144,15 +144,16 @@ Item {
     onRotXChanged: { projDirty = true; rebuildProjCache(); }
     onRotYChanged: { projDirty = true; rebuildProjCache(); }
 
-    // Keep the original project3D for centerOnApp (called rarely)
     function project3D(bx, by, bz) {
         let rx = window.rotX;
         let ry = window.rotY;
-        let y1 = by * Math.cos(rx) - bz * Math.sin(rx);
-        let z1 = by * Math.sin(rx) + bz * Math.cos(rx);
-        let x2 = bx * Math.cos(ry) + z1 * Math.sin(ry);
-        let z2 = -bx * Math.sin(ry) + z1 * Math.cos(ry);
-        return { x: x2, y: y1, z: z2 };
+        let cosRx = Math.cos(rx), sinRx = Math.sin(rx);
+        let cosRy = Math.cos(ry), sinRy = Math.sin(ry);
+        let x1 = bx * cosRy + bz * sinRy;
+        let z1 = -bx * sinRy + bz * cosRy;
+        let y2 = by * cosRx - z1 * sinRx;
+        let z2 = by * sinRx + z1 * cosRx;
+        return { x: x1, y: y2, z: z2 };
     }
 
     Timer {
@@ -165,17 +166,20 @@ Item {
     function centerOnApp(index) {
         if (index < 0 || index >= appModel.count) return;
 
-        let phi    = Math.PI * (3 - Math.sqrt(5));
-        let total  = appModel.count;
-        let b_y    = 1.0 - (index / Math.max(1, total - 1)) * 2.0;
+        let phi      = Math.PI * (3 - Math.sqrt(5));
+        let total    = appModel.count;
+        let b_y      = 1.0 - (index / Math.max(1, total - 1)) * 2.0;
         let b_radius = Math.sqrt(1.0 - b_y * b_y);
         let b_theta  = phi * index;
-        let b_x    = Math.cos(b_theta) * b_radius;
-        let b_z    = Math.sin(b_theta) * b_radius;
+        let b_x      = Math.cos(b_theta) * b_radius;
+        let b_z      = Math.sin(b_theta) * b_radius;
 
-        let targetRotX = Math.atan2(b_y, b_z);
-        let z1         = Math.sqrt(b_y * b_y + b_z * b_z);
-        let targetRotY = Math.atan2(-b_x, z1);
+        // Longitude: rotate Y around vertical axis to bring point to front meridian (x1 = 0, z1 >= 0)
+        let targetRotY = -Math.atan2(b_x, b_z);
+        let z1         = Math.sqrt(b_x * b_x + b_z * b_z);
+
+        // Latitude: rotate X around horizontal axis to bring point to center (y2 = 0, z2 = 1.0)
+        let targetRotX = Math.atan2(b_y, z1);
 
         let currentRotYMod = ((window.rotY % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
         let targetRotYNorm = ((targetRotY % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
@@ -419,6 +423,120 @@ Item {
                     selectedAppIcon: window.selectedAppIcon
 
                     onLaunchRequested: (name, exec) => window.launchApp(name, exec)
+                }
+            }
+        }
+
+        // Dedicated search result satellite pinned horizontally over the Moon center
+        Item {
+            id: selectedSatelliteContainer
+            anchors.centerIn: parent
+            width: satItem.satW
+            height: satItem.satH
+            z: 1100
+
+            property bool showSatellite: window.selectedAppIndex >= 0 && window.introPhase > 0.1
+
+            opacity: showSatellite ? 1.0 : 0.0
+            scale: showSatellite ? 1.0 : 0.70
+            visible: opacity > 0.01
+
+            Behavior on opacity { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+            Behavior on scale   { NumberAnimation { duration: 350; easing.type: Easing.OutBack  } }
+
+            SatelliteItem {
+                id: satItem
+                anchors.centerIn: parent
+                appName: window.selectedAppName
+                appIcon: window.selectedAppIcon
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onClicked: window.launchApp(window.selectedAppName, window.selectedAppExec)
+            }
+        }
+
+        // Empty state displayed over the Moon when search yields no matches
+        Item {
+            id: emptySearchContainer
+            anchors.centerIn: parent
+            width: window.s(320)
+            height: window.s(170)
+            z: 1100
+
+            property bool showEmpty: window.searchQuery !== "" && window.selectedAppIndex === -1 && window.introPhase > 0.1
+
+            opacity: showEmpty ? 1.0 : 0.0
+            scale: showEmpty ? 1.0 : 0.75
+            visible: opacity > 0.01
+
+            Behavior on opacity { NumberAnimation { duration: 280; easing.type: Easing.OutCubic } }
+            Behavior on scale   { NumberAnimation { duration: 320; easing.type: Easing.OutBack  } }
+
+            Rectangle {
+                anchors.fill: parent
+                radius: window._s16
+                color: Qt.rgba(window.mantle.r, window.mantle.g, window.mantle.b, 0.82)
+                border.color: Qt.rgba(window.surface2.r, window.surface2.g, window.surface2.b, 0.55)
+                border.width: 1.5
+
+                ColumnLayout {
+                    anchors.centerIn: parent
+                    anchors.margins: window._s16
+                    spacing: window._s8
+                    width: parent.width - window._s40
+
+                    Rectangle {
+                        Layout.alignment: Qt.AlignHCenter
+                        width: window.s(44)
+                        height: window.s(44)
+                        radius: width / 2
+                        color: Qt.rgba(window.surface0.r, window.surface0.g, window.surface0.b, 0.7)
+                        border.color: Qt.rgba(window.overlay0.r, window.overlay0.g, window.overlay0.b, 0.4)
+                        border.width: 1
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: "󰮐"
+                            font.family: "JetBrains Mono Nerd Font, Symbols Nerd Font, monospace"
+                            font.pixelSize: window.s(20)
+                            color: window.peach
+                        }
+                    }
+
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
+                        Layout.fillWidth: true
+                        text: "Aplikasi Tidak Ditemukan"
+                        font.family: "JetBrains Mono"
+                        font.pixelSize: window._s15
+                        font.weight: Font.Bold
+                        color: window.text
+                        horizontalAlignment: Text.AlignHCenter
+                        elide: Text.ElideRight
+                    }
+
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
+                        Layout.fillWidth: true
+                        text: "Tidak ada hasil untuk \"" + window.searchQuery + "\""
+                        font.family: "JetBrains Mono"
+                        font.pixelSize: window._s11
+                        color: window.subtext0
+                        horizontalAlignment: Text.AlignHCenter
+                        elide: Text.ElideMiddle
+                    }
+
+                    Text {
+                        Layout.alignment: Qt.AlignHCenter
+                        text: "Periksa kembali ejaan kata kunci"
+                        font.family: "JetBrains Mono"
+                        font.pixelSize: window.s(10)
+                        color: window.overlay0
+                        horizontalAlignment: Text.AlignHCenter
+                    }
                 }
             }
         }
