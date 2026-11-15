@@ -15,6 +15,24 @@ PanelWindow {
     id: root
 
     property bool isSearchMode: false
+    property real savedZoomFactor: 1.0
+
+    onIsSearchModeChanged: {
+        if (isSearchMode) {
+            // Auto-focus camera on Moon when App Launcher opens
+            if (root.zoomFactor < 0.95) {
+                root.savedZoomFactor = root.zoomFactor;
+                root.zoomFactor = 1.0;
+            } else {
+                root.savedZoomFactor = 1.0;
+            }
+        } else {
+            // Restore panoramic view when App Launcher closes
+            if (root.savedZoomFactor < 0.95) {
+                root.zoomFactor = root.savedZoomFactor;
+            }
+        }
+    }
 
     WlrLayershell.namespace: "galaxy3d-background"
     WlrLayershell.layer: WlrLayer.Bottom
@@ -396,7 +414,7 @@ PanelWindow {
             opacity: 0.35
             z: -50000
 
-            readonly property real arcCenterX: (root.width / 2) + (root.panoramicFactor * (root.width * 0.14))
+            readonly property real arcCenterX: root.width / 2
 
             ShapePath {
                 strokeColor: root.blue
@@ -467,7 +485,7 @@ PanelWindow {
             width:  root.sphereRadius * 2
             height: root.sphereRadius * 2
             z: 1000
-            x: ((parent.width - width) / 2) + (root.panoramicFactor * (parent.width * 0.14))
+            x: (parent.width - width) / 2
             y: (parent.height - height) / 2
 
             MoonSphere {
