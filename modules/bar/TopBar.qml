@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import "../../services"
@@ -13,75 +12,20 @@ PanelWindow {
         right: true
     }
 
-    implicitHeight: 46
+    implicitHeight: ShellBridge.topbarStyle === "tactical" ? 36 : 46
     WlrLayershell.namespace: "galaxy3d-topbar"
     WlrLayershell.layer: WlrLayer.Top
     exclusionMode: ExclusionMode.Auto
     color: "transparent"
 
-    Item {
+    Loader {
         anchors.fill: parent
-        anchors.leftMargin: 16
-        anchors.rightMargin: 16
-        anchors.topMargin: 4
-        anchors.bottomMargin: 4
-
-        RowLayout {
-            anchors.left: parent.left
-            anchors.verticalCenter: parent.verticalCenter
-            spacing: 8
-
-            Rectangle {
-                width: 34
-                height: 34
-                radius: 17
-                color: Qt.rgba(0.08, 0.08, 0.12, 0.85)
-                border.color: Qt.rgba(1, 1, 1, 0.15)
-                border.width: 1
-
-                Text {
-                    anchors.centerIn: parent
-                    text: ""
-                    font.family: "Iosevka Nerd Font"
-                    font.pixelSize: 18
-                    color: "#89b4fa"
-                    visible: distroIcon.status !== Image.Ready
-                }
-
-                Image {
-                    id: distroIcon
-                    anchors.centerIn: parent
-                    width: 18
-                    height: 18
-                    source: "/usr/share/icons/cachyos.svg"
-                    fillMode: Image.PreserveAspectFit
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    cursorShape: Qt.PointingHandCursor
-                    acceptedButtons: Qt.LeftButton | Qt.RightButton
-                    onClicked: mouse => {
-                        if (mouse.button === Qt.RightButton) {
-                            ShellBridge.toggleSettings();
-                        } else {
-                            ShellBridge.toggleLauncher();
-                        }
-                    }
-                }
+        source: {
+            switch (ShellBridge.topbarStyle) {
+                case "tactical": return "TacticalTopBar.qml";
+                case "capsule":  return "CapsuleTopBar.qml";
+                default:         return "CyberTopBar.qml";
             }
-
-            WorkspacesPill {}
-            MediaPill {}
-        }
-
-        ClockPill {
-            anchors.centerIn: parent
-        }
-
-        SysControls {
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
         }
     }
 }

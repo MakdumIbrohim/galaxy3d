@@ -49,8 +49,8 @@ PanelWindow {
     PwObjectTracker {
         objects: [Pipewire.defaultAudioSink, Pipewire.defaultAudioSource].filter(n => n)
     }
-    readonly property var sinkAudio: Pipewire.defaultAudioSink?.audio ?? null
-    readonly property var sourceAudio: Pipewire.defaultAudioSource?.audio ?? null
+    readonly property var sinkAudio: (Pipewire.defaultAudioSink && Pipewire.defaultAudioSink.audio) ? Pipewire.defaultAudioSink.audio : null
+    readonly property var sourceAudio: (Pipewire.defaultAudioSource && Pipewire.defaultAudioSource.audio) ? Pipewire.defaultAudioSource.audio : null
 
     // System info properties
     property string osName: "CachyOS Linux (x86_64)"
@@ -343,6 +343,74 @@ PanelWindow {
                                                     Quickshell.execDetached(["bash", "-c", "echo '" + modelData.name + "' > " + paths.configDir + "/accent.conf"]);
                                                     Quickshell.execDetached(["notify-send", "Accent Color", "System accent changed to " + modelData.name]);
                                                 }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        Rectangle { height: 1; Layout.fillWidth: true; color: Qt.rgba(theme.surface1.r, theme.surface1.g, theme.surface1.b, 0.3) }
+
+                        // TopBar Layout Style
+                        ColumnLayout {
+                            spacing: 8
+                            Text { text: "TopBar Style"; font.family: "JetBrains Mono"; font.bold: true; font.pixelSize: 12; color: theme.subtext0 }
+
+                            RowLayout {
+                                spacing: 10
+
+                                Repeater {
+                                    model: [
+                                        { id: "cyber",    name: "Cyber Dock",   desc: "3 Floating Glass Islands", icon: "󰕰" },
+                                        { id: "tactical", name: "Tactical HUD", desc: "Full-Width Sci-Fi Rail",   icon: "󰄛" },
+                                        { id: "capsule",  name: "Capsule",      desc: "Compact Minimalist Pills", icon: "󰝥" }
+                                    ]
+
+                                    delegate: Rectangle {
+                                        readonly property bool isSelected: ShellBridge.topbarStyle === modelData.id
+                                        width: 155; height: 54; radius: 10
+                                        color: isSelected ? Qt.rgba(theme.mauve.r, theme.mauve.g, theme.mauve.b, 0.16) : theme.surface0
+                                        border.color: isSelected ? theme.mauve : (styleMa.containsMouse ? theme.surface2 : Qt.rgba(1, 1, 1, 0.08))
+                                        border.width: isSelected ? 1.5 : 1
+
+                                        RowLayout {
+                                            anchors.centerIn: parent
+                                            spacing: 8
+
+                                            Text {
+                                                text: modelData.icon
+                                                font.family: "Iosevka Nerd Font"
+                                                font.pixelSize: 16
+                                                color: isSelected ? theme.mauve : theme.subtext0
+                                            }
+
+                                            ColumnLayout {
+                                                spacing: 2
+                                                Text {
+                                                    text: modelData.name
+                                                    font.family: "JetBrains Mono"
+                                                    font.weight: isSelected ? Font.Bold : Font.Normal
+                                                    font.pixelSize: 11
+                                                    color: isSelected ? theme.text : theme.subtext0
+                                                }
+                                                Text {
+                                                    text: modelData.desc
+                                                    font.family: "JetBrains Mono"
+                                                    font.pixelSize: 8
+                                                    color: theme.overlay0
+                                                }
+                                            }
+                                        }
+
+                                        MouseArea {
+                                            id: styleMa
+                                            anchors.fill: parent
+                                            hoverEnabled: true
+                                            cursorShape: Qt.PointingHandCursor
+                                            onClicked: {
+                                                ShellBridge.setTopbarStyle(modelData.id);
+                                                Quickshell.execDetached(["notify-send", "TopBar Style", "Switched to " + modelData.name]);
                                             }
                                         }
                                     }

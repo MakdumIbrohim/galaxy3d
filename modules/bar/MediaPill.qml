@@ -7,7 +7,7 @@ import "../../services"
 Rectangle {
     id: root
     height: 34
-    implicitWidth: Math.min(280, mediaLayout.implicitWidth + 22)
+    implicitWidth: Math.min(220, mediaLayout.implicitWidth + 22)
     radius: 17
     color: Qt.rgba(0.08, 0.08, 0.12, 0.85)
     border.color: activePlayer && activePlayer.playbackState === MprisPlaybackState.Playing ? Qt.rgba(0.54, 0.71, 0.98, 0.4) : Qt.rgba(1, 1, 1, 0.15)
@@ -63,6 +63,8 @@ Rectangle {
 
                 Text {
                     Layout.fillWidth: true
+                    Layout.maximumWidth: 140
+                    clip: true
                     text: {
                         if (!root.activePlayer) return "No Media";
                         const title = root.activePlayer.trackTitle || "Unknown Track";

@@ -25,4 +25,12 @@ QtObject {
     signal closeMedia()
 
     signal randomWallpaper()
+
+    property string topbarStyle: "cyber"
+
+    function setTopbarStyle(style) {
+        if (style === "cyber" || style === "tactical" || style === "capsule") {
+            root.topbarStyle = style;
+        }
+    }
 }
