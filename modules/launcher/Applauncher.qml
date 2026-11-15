@@ -6,6 +6,7 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import Quickshell
 import Quickshell.Io
+import Quickshell.Hyprland
 import "."
 import "../../theme"
 import "../../services"
@@ -13,6 +14,7 @@ import "../../services"
 Item {
     id: window
 
+    signal closeRequested()
     property alias searchInput: searchContainer.searchInput
     focus: true
 
@@ -217,7 +219,7 @@ Item {
     SequentialAnimation {
         id: closeSequence
         NumberAnimation { target: window; property: "introPhase"; to: 0.0; duration: 400; easing.type: Easing.OutQuint }
-        ScriptAction { script: Quickshell.execDetached(["qs", "-c", "galaxy3d", "ipc", "call", "launcher", "close"]) }
+        ScriptAction { script: window.closeRequested() }
     }
 
     property var    allApps: []
@@ -307,7 +309,7 @@ Item {
     function launchApp(appName, execStr) {
         if (!execStr) return;
         let cleanCmd = execStr.replace(/%[fFuUdDnNickvm]/g, "").trim();
-        Quickshell.execDetached(["hyprctl", "eval", 'hl.dispatch(hl.dsp.exec_cmd("' + cleanCmd.replace(/"/g, '\\"') + '"))']);
+        Hyprland.dispatch("exec " + cleanCmd);
         closeSequence.start();
     }
     Item {

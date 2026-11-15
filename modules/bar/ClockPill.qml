@@ -40,6 +40,18 @@ Rectangle {
         onTriggered: { weatherBarPoller.running = false; weatherBarPoller.running = true; }
     }
 
+    Timer {
+        interval: 1000
+        running: true
+        repeat: true
+        triggeredOnStart: true
+        onTriggered: {
+            let d = new Date();
+            miniClock.text = Qt.formatTime(d, "HH:mm:ss");
+            miniDate.text = Qt.formatDate(d, "dddd, MMM dd");
+        }
+    }
+
     RowLayout {
         id: centerRow
         anchors.centerIn: parent
@@ -47,25 +59,16 @@ Rectangle {
 
         Text {
             id: miniClock
-            text: Qt.formatTime(new Date(), "HH:mm:ss")
             font.family: "JetBrains Mono"
             font.weight: Font.Bold
             font.pixelSize: 12
             color: "#ffffff"
-
-            Timer {
-                interval: 1000
-                running: true
-                repeat: true
-                onTriggered: miniClock.text = Qt.formatTime(new Date(), "HH:mm:ss")
-            }
         }
 
         Rectangle { width: 1; height: 14; color: Qt.rgba(1, 1, 1, 0.2) }
 
         Text {
             id: miniDate
-            text: Qt.formatDate(new Date(), "dddd, MMM dd")
             font.family: "JetBrains Mono"
             font.pixelSize: 11
             color: "#a6adc8"

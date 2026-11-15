@@ -39,6 +39,19 @@ PanelWindow {
         }
     }
 
+    function triggerRandomWallpaper() {
+        Quickshell.execDetached(["bash", "-c", "find " + paths.home + "/Pictures/Wallpapers/ -type f \\( -name '*.jpg' -o -name '*.png' \\) 2>/dev/null | shuf -n 1 > " + paths.configDir + "/wallpaper.conf"]);
+        wpReader.running = false;
+        wpReader.running = true;
+    }
+
+    Connections {
+        target: ShellBridge
+        function onRandomWallpaper() {
+            root.triggerRandomWallpaper();
+        }
+    }
+
     IpcHandler {
         target: "wallpaper"
         function set(path: string): void {
@@ -46,9 +59,7 @@ PanelWindow {
             Quickshell.execDetached(["bash", "-c", "echo '" + path + "' > " + paths.configDir + "/wallpaper.conf"]);
         }
         function random(): void {
-            Quickshell.execDetached(["bash", "-c", "find " + paths.home + "/Pictures/Wallpapers/ -type f \\( -name '*.jpg' -o -name '*.png' \\) 2>/dev/null | shuf -n 1 > " + paths.configDir + "/wallpaper.conf"]);
-            wpReader.running = false;
-            wpReader.running = true;
+            root.triggerRandomWallpaper();
         }
     }
 
@@ -87,50 +98,50 @@ PanelWindow {
             visible: bgWallpaper.visible
         }
 
-        // 4. 800 Twinkling Stars
+        // 4. Performant Twinkling Starfield (Batched GPU Rendering)
         Repeater {
-            model: 800
+            model: 220
 
             Rectangle {
                 id: starCore
 
-                width: 2.0 + Math.random() * 4
-                height: width
-                radius: width / 2
+                readonly property real baseSize: 1.5 + Math.random() * 3.0
+                width: baseSize
+                height: baseSize
+                radius: baseSize / 2
 
-                color: Qt.rgba(0.95 + Math.random() * 0.05,
-                               0.9  + Math.random() * 0.1,
-                               0.8  + Math.random() * 0.2,
-                               1.0)
-
-                opacity: 0
-
-                x: Math.random() * root.screen.width
-                y: Math.random() * root.screen.height
-
-                layer.enabled: true
-                layer.effect: MultiEffect {
-                    autoPaddingEnabled: true
-                    shadowEnabled: true
-                    shadowColor: starCore.color
-                    shadowBlur: 2.0 + Math.random() * 4.0
-                    shadowOpacity: starCore.opacity * 0.8
+                color: {
+                    let r = Math.random();
+                    if (r > 0.85) return "#b4befe"; // soft cosmic blue
+                    if (r > 0.70) return "#f9e2af"; // warm yellow
+                    if (r > 0.55) return "#f5c2e7"; // nebula pink
+                    return "#ffffff";
                 }
 
-                Timer {
-                    id: blinkTimer
-                    repeat: true
-                    running: false
+                x: Math.random() * (root.width > 0 ? root.width : 1920)
+                y: Math.random() * (root.height > 0 ? root.height : 1080)
 
-                    onTriggered: {
-                        starCore.opacity = 0.05 + Math.random() * 0.95
+                readonly property real minOpacity: 0.10 + Math.random() * 0.20
+                readonly property real maxOpacity: 0.65 + Math.random() * 0.35
+                readonly property int animDuration: 1200 + Math.round(Math.random() * 2800)
+
+                opacity: minOpacity
+
+                SequentialAnimation on opacity {
+                    loops: Animation.Infinite
+                    running: true
+                    NumberAnimation {
+                        from: starCore.minOpacity
+                        to: starCore.maxOpacity
+                        duration: starCore.animDuration
+                        easing.type: Easing.InOutSine
                     }
-                }
-
-                Component.onCompleted: {
-                    blinkTimer.interval = 400 + Math.random() * 3000
-                    starCore.opacity = 0.05 + Math.random() * 0.95
-                    blinkTimer.running = true
+                    NumberAnimation {
+                        from: starCore.maxOpacity
+                        to: starCore.minOpacity
+                        duration: starCore.animDuration
+                        easing.type: Easing.InOutSine
+                    }
                 }
             }
         }

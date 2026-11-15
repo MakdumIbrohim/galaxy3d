@@ -32,10 +32,6 @@ Item {
     property real baselineDepthScale: 0.72 + (Math.max(0.0, proj.z) * 0.25)
     property real centerFocusFactor:  (proj.z > 0) ? Math.max(0.0, 1.0 - (Math.abs(proj.x) * 1.6)) : 0.0
     scale: (weatherRingsActive ? ((baselineDepthScale + (centerFocusFactor * 0.12)) * 2.2) : 1.30) * satelliteZoom
-    Behavior on scale {
-        enabled: !gaugeSatellite.pressed
-        NumberAnimation { duration: 500; easing.type: Easing.OutBack }
-    }
 
     width: 260
     height: 100

@@ -154,6 +154,9 @@ Item {
                     root.batPercent = lines[0] + "%";
                     root.batStatus = lines.length >= 2 ? lines[1] : "Discharging";
                     root.batIcon = root.isCharging ? "󰂄" : (parseInt(lines[0]) > 20 ? "󰁹" : "󰂃");
+                    root.isDesktop = false;
+                } else {
+                    root.isDesktop = true;
                 }
             }
         }

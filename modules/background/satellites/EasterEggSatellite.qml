@@ -28,10 +28,6 @@ Item {
     property real baselineDepthScale: 0.70 + (Math.max(0.0, proj.z) * 0.25)
     property real centerFocusFactor:  (proj.z > 0) ? Math.max(0.0, 1.0 - (Math.abs(proj.x) * 1.6)) : 0.0
     scale: (baselineDepthScale + (centerFocusFactor * 0.12)) * 1.3 * satelliteZoom
-    Behavior on scale {
-        enabled: !easterEggSatellite.pressed
-        NumberAnimation { duration: 500; easing.type: Easing.OutBack }
-    }
 
     width:  80
     height: 70

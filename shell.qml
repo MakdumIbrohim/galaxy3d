@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
+import "services"
 import "modules/background"
 import "modules/bar"
 import "modules/launcher"
@@ -81,24 +82,52 @@ ShellRoot {
             Applauncher {
                 id: launcherContent
                 anchors.fill: parent
+                onCloseRequested: root.closeLauncher()
             }
         }
+    }
+
+    function toggleLauncher() {
+        launcherWindow.visible = !launcherWindow.visible;
+        if (launcherWindow.visible) {
+            launcherContent.searchInput.forceActiveFocus();
+        }
+    }
+    function openLauncher() {
+        launcherWindow.visible = true;
+        launcherContent.searchInput.forceActiveFocus();
+    }
+    function closeLauncher() { launcherWindow.visible = false; }
+
+    Connections {
+        target: ShellBridge
+        function onToggleLauncher() { root.toggleLauncher(); }
+        function onOpenLauncher()   { root.openLauncher(); }
+        function onCloseLauncher()  { root.closeLauncher(); }
+
+        function onToggleNetwork()  { networkPanel.visible = !networkPanel.visible; }
+        function onOpenNetwork()    { networkPanel.visible = true; }
+        function onCloseNetwork()   { networkPanel.visible = false; }
+
+        function onToggleSettings() { settingsWin.visible = !settingsWin.visible; }
+        function onOpenSettings()   { settingsWin.visible = true; }
+        function onCloseSettings()  { settingsWin.visible = false; }
+
+        function onTogglePower()    { powerMenu.visible = !powerMenu.visible; }
+        function onOpenPower()      { powerMenu.visible = true; }
+        function onClosePower()     { powerMenu.visible = false; }
+
+        function onToggleMedia()    { mediaPopup.visible = !mediaPopup.visible; }
+        function onOpenMedia()      { mediaPopup.visible = true; }
+        function onCloseMedia()     { mediaPopup.visible = false; }
     }
 
     // IPC handler for Super / Super+A
     IpcHandler {
         target: "launcher"
-        function toggle(): void {
-            launcherWindow.visible = !launcherWindow.visible;
-            if (launcherWindow.visible) {
-                launcherContent.searchInput.forceActiveFocus();
-            }
-        }
-        function open(): void {
-            launcherWindow.visible = true;
-            launcherContent.searchInput.forceActiveFocus();
-        }
-        function close(): void { launcherWindow.visible = false; }
+        function toggle(): void { root.toggleLauncher(); }
+        function open(): void { root.openLauncher(); }
+        function close(): void { root.closeLauncher(); }
     }
 
     // IPC handler for Satellite / Wi-Fi Network Panel

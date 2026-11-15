@@ -41,10 +41,6 @@ Item {
     property real baselineDepthScale: 0.65 + (Math.max(0.0, proj.z) * 0.25)
     property real centerFocusFactor:  (proj.z > 0) ? Math.max(0.0, 1.0 - (Math.abs(proj.x) * 1.6)) : 0.0
     scale: (baselineDepthScale + (centerFocusFactor * 0.12)) * 1.45 * satelliteZoom
-    Behavior on scale {
-        enabled: !musicSatellite.pressed
-        NumberAnimation { duration: 500; easing.type: Easing.OutBack }
-    }
 
     width:  240
     height: 70

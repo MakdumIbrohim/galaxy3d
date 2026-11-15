@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.Mpris
+import "../../services"
 
 Rectangle {
     id: root
@@ -79,7 +80,7 @@ Rectangle {
             MouseArea {
                 anchors.fill: parent
                 cursorShape: Qt.PointingHandCursor
-                onClicked: Quickshell.execDetached(["qs", "-c", "galaxy3d", "ipc", "call", "media", "toggle"])
+                onClicked: ShellBridge.toggleMedia()
             }
         }
 

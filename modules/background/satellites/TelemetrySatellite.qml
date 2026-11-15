@@ -30,10 +30,6 @@ Item {
     property real baselineDepthScale: 0.75 + (Math.max(0.0, proj.z) * 0.25)
     property real centerFocusFactor:  (proj.z > 0) ? Math.max(0.0, 1.0 - (Math.abs(proj.x) * 1.6)) : 0.0
     scale: (baselineDepthScale + (centerFocusFactor * 0.18)) * 1.45 * satelliteZoom
-    Behavior on scale {
-        enabled: !telemetrySatellite.pressed
-        NumberAnimation { duration: 500; easing.type: Easing.OutBack }
-    }
 
     width:  165
     height: 210

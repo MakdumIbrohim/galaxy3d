@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Pipewire
+import "../../services"
 
 RowLayout {
     id: root
@@ -76,7 +77,7 @@ RowLayout {
         MouseArea {
             anchors.fill: parent
             cursorShape: Qt.PointingHandCursor
-            onClicked: Quickshell.execDetached(["qs", "-c", "galaxy3d", "ipc", "call", "settings", "toggle"])
+            onClicked: ShellBridge.toggleSettings()
         }
     }
 
@@ -118,7 +119,9 @@ RowLayout {
         color: Qt.rgba(0.08, 0.08, 0.12, 0.85)
         border.color: Qt.rgba(1, 1, 1, 0.15)
         border.width: 1
+        visible: batteryBox.hasBattery
 
+        property bool hasBattery: false
         property int batPercent: 100
         property bool isCharging: false
 
@@ -126,22 +129,27 @@ RowLayout {
             id: batReader
             running: true
             command: ["bash", "-c", "cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -n 1; cat /sys/class/power_supply/BAT*/status 2>/dev/null | head -n 1"]
-            stdout: SplitParser {
-                onRead: data => {
-                    let val = data.trim();
-                    if (!isNaN(parseInt(val))) {
-                        batteryBox.batPercent = parseInt(val);
-                    } else if (val.toLowerCase() === "charging") {
-                        batteryBox.isCharging = true;
-                    } else if (val.toLowerCase() === "discharging") {
-                        batteryBox.isCharging = false;
+            stdout: StdioCollector {
+                onStreamFinished: {
+                    let lines = this.text.trim().split("\n");
+                    if (lines.length >= 1 && lines[0] !== "") {
+                        let num = parseInt(lines[0]);
+                        if (!isNaN(num)) {
+                            batteryBox.hasBattery = true;
+                            batteryBox.batPercent = num;
+                            if (lines.length >= 2) {
+                                batteryBox.isCharging = lines[1].toLowerCase().includes("charging");
+                            }
+                        }
+                    } else {
+                        batteryBox.hasBattery = false;
                     }
                 }
             }
         }
 
         Timer {
-            interval: 10000
+            interval: 15000
             running: true
             repeat: true
             onTriggered: { batReader.running = false; batReader.running = true; }
@@ -185,7 +193,7 @@ RowLayout {
         MouseArea {
             anchors.fill: parent
             cursorShape: Qt.PointingHandCursor
-            onClicked: Quickshell.execDetached(["qs", "-c", "galaxy3d", "ipc", "call", "power", "toggle"])
+            onClicked: ShellBridge.togglePower()
         }
     }
 }

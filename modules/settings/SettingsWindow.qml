@@ -291,7 +291,7 @@ PanelWindow {
                                 text: "Acak"
                                 contentItem: Text { text: parent.text; font.family: "JetBrains Mono"; font.pixelSize: 11; font.bold: true; color: theme.crust }
                                 background: Rectangle { radius: 8; color: theme.mauve }
-                                onClicked: Quickshell.execDetached(["qs", "-c", "galaxy3d", "ipc", "call", "wallpaper", "random"])
+                                onClicked: ShellBridge.randomWallpaper()
                             }
                         }
 
@@ -370,7 +370,7 @@ PanelWindow {
                                     contentItem: Text { text: parent.text; font.family: "JetBrains Mono"; font.pixelSize: 11; font.bold: true; color: theme.crust }
                                     onClicked: {
                                         settingsWindow.visible = false;
-                                        Quickshell.execDetached(["qs", "-c", "galaxy3d", "ipc", "call", "network", "open"]);
+                                        ShellBridge.openNetwork();
                                     }
                                 }
                             }

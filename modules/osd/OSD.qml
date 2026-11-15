@@ -9,6 +9,7 @@ import "../../theme"
 
 PanelWindow {
     id: osdWindow
+    visible: osdWindow.isVisible
 
     WlrLayershell.namespace: "galaxy3d-osd"
     WlrLayershell.layer: WlrLayer.Overlay

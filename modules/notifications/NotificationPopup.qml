@@ -8,6 +8,7 @@ import "../../theme"
 
 PanelWindow {
     id: notifWin
+    visible: server.trackedNotifications.length > 0
 
     anchors {
         top: true

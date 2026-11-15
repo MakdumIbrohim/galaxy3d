@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
+import "../../services"
 
 PanelWindow {
     id: topBarWin
@@ -38,7 +39,17 @@ PanelWindow {
                 border.color: Qt.rgba(1, 1, 1, 0.15)
                 border.width: 1
 
+                Text {
+                    anchors.centerIn: parent
+                    text: ""
+                    font.family: "Iosevka Nerd Font"
+                    font.pixelSize: 18
+                    color: "#89b4fa"
+                    visible: distroIcon.status !== Image.Ready
+                }
+
                 Image {
+                    id: distroIcon
                     anchors.centerIn: parent
                     width: 18
                     height: 18
@@ -52,9 +63,9 @@ PanelWindow {
                     acceptedButtons: Qt.LeftButton | Qt.RightButton
                     onClicked: mouse => {
                         if (mouse.button === Qt.RightButton) {
-                            Quickshell.execDetached(["qs", "-c", "galaxy3d", "ipc", "call", "settings", "toggle"]);
+                            ShellBridge.toggleSettings();
                         } else {
-                            Quickshell.execDetached(["qs", "-c", "galaxy3d", "ipc", "call", "launcher", "toggle"]);
+                            ShellBridge.toggleLauncher();
                         }
                     }
                 }

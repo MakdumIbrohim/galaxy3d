@@ -79,9 +79,21 @@ pub fn fetch_weather(current_only: bool) {
         let temps = data["hourly"]["temperature_2m"].as_array();
         let codes = data["hourly"]["weather_code"].as_array();
 
+        let curr_time_str = curr["time"].as_str().unwrap_or("");
+        let start_idx = if let Some(times_arr) = times {
+            times_arr
+                .iter()
+                .position(|t| t.as_str().unwrap_or("") >= curr_time_str)
+                .unwrap_or(0)
+        } else {
+            0
+        };
+
         let mut hourly_list = Vec::new();
-        let count = times.map(|t| t.len()).unwrap_or(0).min(8);
-        for i in 0..count {
+        let total_len = times.map(|t| t.len()).unwrap_or(0);
+        let end_idx = (start_idx + 8).min(total_len);
+
+        for i in start_idx..end_idx {
             let t_raw = times.and_then(|a| a.get(i)).and_then(|v| v.as_str()).unwrap_or("");
             let t_str = if let Some((_, time)) = t_raw.split_once('T') {
                 &time[..time.len().min(5)]

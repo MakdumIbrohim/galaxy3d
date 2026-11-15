@@ -16,13 +16,30 @@ pub fn fetch_apps() {
     let mut seen = HashSet::new();
 
     let home = std::env::var("HOME").unwrap_or_default();
-    let dirs = [
+    let mut dirs = vec![
         format!("{}/.local/share/applications", home),
+        format!("{}/.local/share/flatpak/exports/share/applications", home),
+        "/var/lib/flatpak/exports/share/applications".to_string(),
+        "/run/current-system/sw/share/applications".to_string(),
         "/usr/local/share/applications".to_string(),
         "/usr/share/applications".to_string(),
     ];
 
+    if let Ok(xdg_data_dirs) = std::env::var("XDG_DATA_DIRS") {
+        for dir in xdg_data_dirs.split(':') {
+            let dir = dir.trim();
+            if !dir.is_empty() {
+                dirs.push(format!("{}/applications", dir));
+            }
+        }
+    }
+
+    let mut checked_dirs = HashSet::new();
+
     for d in &dirs {
+        if !checked_dirs.insert(d.clone()) {
+            continue;
+        }
         let p = Path::new(d);
         if !p.exists() {
             continue;

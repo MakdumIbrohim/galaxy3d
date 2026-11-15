@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import "../../../theme"
+import "../../../services"
 
 Item {
     id: sysInfoSatellite
@@ -46,10 +47,6 @@ Item {
     property real baselineDepthScale: 0.72 + (Math.max(0.0, proj.z) * 0.25)
     property real centerFocusFactor:  (proj.z > 0) ? Math.max(0.0, 1.0 - (Math.abs(proj.x) * 1.6)) : 0.0
     scale: (baselineDepthScale + (centerFocusFactor * 0.12)) * 1.45 * satelliteZoom
-    Behavior on scale {
-        enabled: !sysInfoSatellite.pressed
-        NumberAnimation { duration: 500; easing.type: Easing.OutBack }
-    }
 
     width:  340
     height: 140
@@ -242,7 +239,7 @@ Item {
                         acceptedButtons: Qt.LeftButton | Qt.RightButton
                         onClicked: mouse => {
                             if (mouse.button === Qt.RightButton) {
-                                Quickshell.execDetached(["qs", "-c", "galaxy3d", "ipc", "call", "network", "toggle"]);
+                                ShellBridge.toggleNetwork();
                             } else {
                                 Quickshell.execDetached(["nmcli", "radio", "wifi", sysInfoSatellite.isWifiOn ? "off" : "on"]);
                             }
