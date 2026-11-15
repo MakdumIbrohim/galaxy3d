@@ -10,6 +10,7 @@ import "modules/notifications"
 import "modules/settings"
 import "modules/osd"
 import "modules/hud"
+import "modules/lock"
 
 ShellRoot {
     id: root
@@ -57,6 +58,11 @@ ShellRoot {
     // Flight Control HUD / Side Action Center
     SideActionCenter {
         id: sideHud
+    }
+
+    // Cosmic Lock Screen & Screensaver
+    LockScreen {
+        id: lockScreen
     }
 
     // 3D Orbital App Launcher Overlay
@@ -137,6 +143,10 @@ ShellRoot {
         function onToggleHud()      { sideHud.visible = !sideHud.visible; }
         function onOpenHud()        { sideHud.visible = true; }
         function onCloseHud()       { sideHud.visible = false; }
+
+        function onToggleLock()     { lockScreen.visible = !lockScreen.visible; }
+        function onOpenLock()       { lockScreen.visible = true; }
+        function onCloseLock()      { lockScreen.visible = false; }
     }
 
     // IPC handler for Super / Super+A
@@ -185,5 +195,13 @@ ShellRoot {
         function toggle() { sideHud.visible = !sideHud.visible; }
         function open() { sideHud.visible = true; }
         function close() { sideHud.visible = false; }
+    }
+
+    // IPC handler for Cosmic Lock Screen
+    IpcHandler {
+        target: "lock"
+        function toggle() { lockScreen.visible = !lockScreen.visible; }
+        function open() { lockScreen.visible = true; }
+        function close() { lockScreen.visible = false; }
     }
 }

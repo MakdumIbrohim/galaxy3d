@@ -140,7 +140,11 @@ PanelWindow {
                             cursorShape: Qt.PointingHandCursor
                             onClicked: {
                                 powerWindow.visible = false;
-                                Quickshell.execDetached(["bash", "-c", modelData.cmd]);
+                                if (modelData.name === "Lock") {
+                                    ShellBridge.openLock();
+                                } else {
+                                    Quickshell.execDetached(["bash", "-c", modelData.cmd]);
+                                }
                             }
                         }
                     }
