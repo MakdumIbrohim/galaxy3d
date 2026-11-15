@@ -8,6 +8,8 @@ Item {
     property string appName: ""
     property string appIcon: ""
     property real panelDeploy: 1.0
+    property real sunValueX: 0.5
+    property real sunValueY: 0.0
 
     signal terminalLaunchRequested()
     signal pinRequested()
@@ -58,7 +60,7 @@ Item {
         scale: 0.2 + 0.8 * root.panelDeploy
         opacity: Math.max(0.0, Math.min(1.0, root.panelDeploy * 1.25))
         color: colors.mantle
-        border.color: Qt.alpha(colors.surface2, 0.4)
+        border.color: root.sunValueX < -0.15 ? Qt.alpha(colors.peach, 0.55) : Qt.alpha(colors.surface2, 0.4)
         border.width: 1
         radius: root._sat_radius4
 
@@ -98,6 +100,17 @@ Item {
         border.color: Qt.alpha(colors.surface1, 0.6)
         border.width: 1.5
         radius: root._sat_radius12
+
+        // Directional Solar Rim Highlight
+        Rectangle {
+            anchors.fill: parent
+            radius: root._sat_radius12
+            color: "transparent"
+            border.color: Qt.alpha(colors.peach, Math.max(0.12, Math.min(0.5, 0.2 + root.sunValueX * 0.25)))
+            border.width: 1.5
+            x: root.sunValueX * root.s(2)
+            y: -root.sunValueY * root.s(2)
+        }
 
         // Radar lock-on targeting pulse
         Rectangle {
@@ -254,7 +267,7 @@ Item {
         scale: 0.2 + 0.8 * root.panelDeploy
         opacity: Math.max(0.0, Math.min(1.0, root.panelDeploy * 1.25))
         color: colors.mantle
-        border.color: Qt.alpha(colors.surface2, 0.4)
+        border.color: root.sunValueX > 0.15 ? Qt.alpha(colors.peach, 0.55) : Qt.alpha(colors.surface2, 0.4)
         border.width: 1
         radius: root._sat_radius4
 

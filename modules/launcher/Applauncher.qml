@@ -21,6 +21,9 @@ Item {
     implicitWidth: Screen.width
     implicitHeight: Screen.height
 
+    property real sunValueX: 0.5
+    property real sunValueY: 0.0
+
     Caching { id: paths }
 
     Scaler {
@@ -657,6 +660,8 @@ Item {
                 appName: window.selectedAppName
                 appIcon: window.selectedAppIcon
                 panelDeploy: selectedSatelliteContainer.satPanelDeploy
+                sunValueX: window.sunValueX
+                sunValueY: window.sunValueY
 
                 onTerminalLaunchRequested: {
                     let cleanCmd = (window.selectedAppExec || "").replace(/%[fFuUdDnNickvm]/g, "").trim();
@@ -698,6 +703,8 @@ Item {
                 id: damagedSat
                 anchors.centerIn: parent
                 searchQuery: window.searchQuery
+                sunValueX: window.sunValueX
+                sunValueY: window.sunValueY
             }
         }
     }

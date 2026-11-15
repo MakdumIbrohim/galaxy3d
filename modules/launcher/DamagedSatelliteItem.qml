@@ -6,6 +6,8 @@ Item {
     id: root
 
     property string searchQuery: ""
+    property real sunValueX: 0.5
+    property real sunValueY: 0.0
 
     MatugenColors { id: colors }
     Scaler { id: scaler; currentWidth: Screen.width }

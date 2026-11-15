@@ -82,6 +82,8 @@ ShellRoot {
             Applauncher {
                 id: launcherContent
                 anchors.fill: parent
+                sunValueX: moonBg.sunValueX
+                sunValueY: moonBg.sunValueY
                 onCloseRequested: launcherWindow.visible = false
             }
         }
