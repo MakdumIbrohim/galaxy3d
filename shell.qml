@@ -19,7 +19,7 @@ ShellRoot {
     // Background Earth & 3D Moon
     Moon {
         id: moonBg
-        isSearchMode: launcherWindow.visible
+        isSearchMode: launcherContent.isOpen
         rotX: launcherWindow.visible ? launcherContent.rotX : -0.2
         rotY: launcherWindow.visible ? launcherContent.rotY : 0.0
     }
@@ -76,28 +76,33 @@ ShellRoot {
 
             MouseArea {
                 anchors.fill: parent
-                onClicked: launcherWindow.visible = false
+                onClicked: launcherContent.closeLauncher()
             }
 
             Applauncher {
                 id: launcherContent
                 anchors.fill: parent
-                onCloseRequested: root.closeLauncher()
+                onCloseRequested: launcherWindow.visible = false
             }
         }
     }
 
     function toggleLauncher() {
-        launcherWindow.visible = !launcherWindow.visible;
-        if (launcherWindow.visible) {
-            launcherContent.searchInput.forceActiveFocus();
+        if (launcherWindow.visible && launcherContent.isOpen) {
+            launcherContent.closeLauncher();
+        } else {
+            root.openLauncher();
         }
     }
     function openLauncher() {
         launcherWindow.visible = true;
-        launcherContent.searchInput.forceActiveFocus();
+        launcherContent.openLauncher();
     }
-    function closeLauncher() { launcherWindow.visible = false; }
+    function closeLauncher() {
+        if (launcherWindow.visible) {
+            launcherContent.closeLauncher();
+        }
+    }
 
     Connections {
         target: ShellBridge
@@ -125,40 +130,40 @@ ShellRoot {
     // IPC handler for Super / Super+A
     IpcHandler {
         target: "launcher"
-        function toggle(): void { root.toggleLauncher(); }
-        function open(): void { root.openLauncher(); }
-        function close(): void { root.closeLauncher(); }
+        function toggle() { root.toggleLauncher(); }
+        function open() { root.openLauncher(); }
+        function close() { root.closeLauncher(); }
     }
 
     // IPC handler for Satellite / Wi-Fi Network Panel
     IpcHandler {
         target: "network"
-        function toggle(): void { networkPanel.visible = !networkPanel.visible; }
-        function open(): void { networkPanel.visible = true; }
-        function close(): void { networkPanel.visible = false; }
+        function toggle() { networkPanel.visible = !networkPanel.visible; }
+        function open() { networkPanel.visible = true; }
+        function close() { networkPanel.visible = false; }
     }
 
     // IPC handler for Shell Settings Window
     IpcHandler {
         target: "settings"
-        function toggle(): void { settingsWin.visible = !settingsWin.visible; }
-        function open(): void { settingsWin.visible = true; }
-        function close(): void { settingsWin.visible = false; }
+        function toggle() { settingsWin.visible = !settingsWin.visible; }
+        function open() { settingsWin.visible = true; }
+        function close() { settingsWin.visible = false; }
     }
 
     // IPC handler for Power Menu
     IpcHandler {
         target: "power"
-        function toggle(): void { powerMenu.visible = !powerMenu.visible; }
-        function open(): void { powerMenu.visible = true; }
-        function close(): void { powerMenu.visible = false; }
+        function toggle() { powerMenu.visible = !powerMenu.visible; }
+        function open() { powerMenu.visible = true; }
+        function close() { powerMenu.visible = false; }
     }
 
     // IPC handler for Media Popup Flyout
     IpcHandler {
         target: "media"
-        function toggle(): void { mediaPopup.visible = !mediaPopup.visible; }
-        function open(): void { mediaPopup.visible = true; }
-        function close(): void { mediaPopup.visible = false; }
+        function toggle() { mediaPopup.visible = !mediaPopup.visible; }
+        function open() { mediaPopup.visible = true; }
+        function close() { mediaPopup.visible = false; }
     }
 }

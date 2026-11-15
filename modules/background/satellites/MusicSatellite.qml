@@ -30,17 +30,22 @@ Item {
 
     MatugenColors { id: theme }
 
-    x: (centerWidth / 2) + (proj.x * sphereRadius) - width / 2
-    y: (centerHeight / 2) + (proj.y * sphereRadius) - height / 2
+    property real transitionPhase: isSearchMode ? 1.0 : 0.0
+    Behavior on transitionPhase {
+        NumberAnimation { duration: 480; easing.type: Easing.OutCubic }
+    }
+
+    property real orbitExpand: 1.0 + (transitionPhase * 0.55)
+    x: (centerWidth / 2) + (proj.x * sphereRadius * orbitExpand) - width / 2
+    y: (centerHeight / 2) + (proj.y * sphereRadius * orbitExpand) - height / 2
     z: Math.round(proj.z * 1000)
 
-    opacity: !isSearchMode && isMusicActive ? 1.0 : 0.0
+    opacity: isMusicActive ? Math.max(0.0, 1.0 - transitionPhase * 1.25) : 0.0
     visible: opacity > 0.01
-    Behavior on opacity { NumberAnimation { duration: 300 } }
 
     property real baselineDepthScale: 0.65 + (Math.max(0.0, proj.z) * 0.25)
     property real centerFocusFactor:  (proj.z > 0) ? Math.max(0.0, 1.0 - (Math.abs(proj.x) * 1.6)) : 0.0
-    scale: (baselineDepthScale + (centerFocusFactor * 0.12)) * 1.45 * satelliteZoom
+    scale: (baselineDepthScale + (centerFocusFactor * 0.12)) * 1.45 * satelliteZoom * (1.0 + transitionPhase * 0.35)
 
     width:  240
     height: 70

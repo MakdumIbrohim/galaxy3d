@@ -21,17 +21,22 @@ Item {
 
     MatugenColors { id: theme }
 
-    x: originX + (proj.x * earthSphereRadius) - width / 2
-    y: originY + (proj.y * earthSphereRadius) - height / 2
+    property real transitionPhase: isSearchMode ? 1.0 : 0.0
+    Behavior on transitionPhase {
+        NumberAnimation { duration: 480; easing.type: Easing.OutCubic }
+    }
+
+    property real orbitExpand: 1.0 + (transitionPhase * 0.55)
+    x: originX + (proj.x * earthSphereRadius * orbitExpand) - width / 2
+    y: originY + (proj.y * earthSphereRadius * orbitExpand) - height / 2
     z: earthZ + Math.round(proj.z * 1000)
 
-    opacity: isSearchMode ? 0.0 : (weatherRingsActive ? 1.0 : 0.0)
+    opacity: weatherRingsActive ? Math.max(0.0, 1.0 - transitionPhase * 1.25) : 0.0
     visible: opacity > 0.01
-    Behavior on opacity { NumberAnimation { duration: 400 } }
 
     property real baselineDepthScale: 0.72 + (Math.max(0.0, proj.z) * 0.25)
     property real centerFocusFactor:  (proj.z > 0) ? Math.max(0.0, 1.0 - (Math.abs(proj.x) * 1.6)) : 0.0
-    scale: (weatherRingsActive ? ((baselineDepthScale + (centerFocusFactor * 0.12)) * 2.2) : 1.30) * satelliteZoom
+    scale: (weatherRingsActive ? ((baselineDepthScale + (centerFocusFactor * 0.12)) * 2.2) : 1.30) * satelliteZoom * (1.0 + transitionPhase * 0.35)
 
     width: 260
     height: 100

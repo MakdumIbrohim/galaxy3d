@@ -191,35 +191,64 @@ Item {
         searchRotYAnim.restart();
     }
 
+    property bool isOpen: false
     property real introPhase: 0.0
-    NumberAnimation on introPhase {
-        id: introPhaseAnim
-        from: 0.0; to: 1.0; duration: 800; easing.type: Easing.OutExpo; running: true
+
+    NumberAnimation {
+        id: openAnim
+        target: window
+        property: "introPhase"
+        from: 0.0
+        to: 1.0
+        duration: 520
+        easing.type: Easing.OutCubic
+    }
+
+    SequentialAnimation {
+        id: closeAnim
+        NumberAnimation {
+            target: window
+            property: "introPhase"
+            to: 0.0
+            duration: 380
+            easing.type: Easing.InOutCubic
+        }
+        ScriptAction {
+            script: window.closeRequested()
+        }
+    }
+
+    function openLauncher() {
+        closeAnim.stop();
+        window.introPhase = 0.0;
+        window.isOpen = true;
+        searchContainer.text = "";
+        window.searchQuery = "";
+        window.selectedAppIndex = -1;
+        window.sphereZoom = 1.0;
+        searchContainer.forceActiveFocus();
+        openAnim.restart();
+    }
+
+    function closeLauncher() {
+        if (!window.isOpen && !openAnim.running) return;
+        window.isOpen = false;
+        openAnim.stop();
+        closeAnim.restart();
     }
 
     Connections {
         target: window
         function onVisibleChanged() {
-            if (window.visible) {
-                searchContainer.text    = "";
-                window.searchQuery  = "";
-                window.selectedAppIndex = -1;
-                window.sphereZoom   = 1.0;
-                searchContainer.forceActiveFocus();
-                introPhaseAnim.restart();
+            if (window.visible && !window.isOpen) {
+                window.openLauncher();
             }
         }
     }
 
     Shortcut {
         sequence: "Escape"
-        onActivated: closeSequence.start()
-    }
-
-    SequentialAnimation {
-        id: closeSequence
-        NumberAnimation { target: window; property: "introPhase"; to: 0.0; duration: 400; easing.type: Easing.OutQuint }
-        ScriptAction { script: window.closeRequested() }
+        onActivated: window.closeLauncher()
     }
 
     property var    allApps: []
@@ -310,7 +339,7 @@ Item {
         if (!execStr) return;
         let cleanCmd = execStr.replace(/%[fFuUdDnNickvm]/g, "").trim();
         Hyprland.dispatch("exec " + cleanCmd);
-        closeSequence.start();
+        window.closeLauncher();
     }
     Item {
         anchors.fill: parent
@@ -367,6 +396,9 @@ Item {
             anchors.centerIn: parent
             width:  window.baseSphereRadius * 2
             height: window.baseSphereRadius * 2
+            transformOrigin: Item.Center
+            scale: 0.68 + (0.32 * window.introPhase)
+            opacity: Math.max(0.0, Math.min(1.0, window.introPhase * 1.25))
 
             Repeater {
                 id: appRepeater
@@ -438,6 +470,6 @@ Item {
             }
         }
 
-        onEscapePressed: closeSequence.start()
+        onEscapePressed: window.closeLauncher()
     }
 }
