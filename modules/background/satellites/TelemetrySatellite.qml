@@ -16,6 +16,9 @@ Item {
     property real centerWidth: parent ? parent.width : 520
     property real centerHeight: parent ? parent.height : 520
     property real independentCometAngle: 0
+    property string lunarPhaseIcon: "󰽤"
+    property string lunarPhaseName: "Waxing Crescent"
+    property real lunarIllumination: 50
 
     MatugenColors { id: theme }
 
@@ -226,8 +229,28 @@ Item {
                 color: theme.mantle
                 border.color: Qt.rgba(theme.surface2.r, theme.surface2.g, theme.surface2.b, 0.4)
                 border.width: 1; radius: 4
-                Rectangle { width: parent.width; height: 1; color: Qt.rgba(theme.mauve.r, theme.mauve.g, theme.mauve.b, 0.12); anchors.centerIn: parent }
-                Rectangle { width: 1; height: parent.height; color: Qt.rgba(theme.mauve.r, theme.mauve.g, theme.mauve.b, 0.12); anchors.centerIn: parent }
+
+                Column {
+                    anchors.centerIn: parent
+                    spacing: 1
+
+                    Text {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        text: telemetrySatellite.lunarPhaseIcon
+                        font.family: "JetBrains Mono"
+                        font.pixelSize: 13
+                        color: theme.yellow
+                    }
+
+                    Text {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        text: Math.round(telemetrySatellite.lunarIllumination) + "%"
+                        font.family: "JetBrains Mono"
+                        font.pixelSize: 8
+                        font.weight: Font.DemiBold
+                        color: theme.subtext0
+                    }
+                }
             }
         }
     }

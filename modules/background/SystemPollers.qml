@@ -15,6 +15,12 @@ Item {
     property string weatherHex: theme.yellow
     property var detailedWeatherData: null
 
+    // Real-Time Astronomical Lunar Ephemeris
+    property real lunarCyclePos: 0.0
+    property real lunarIllumination: 0.0
+    property string lunarPhaseName: "Waxing Crescent"
+    property string lunarPhaseIcon: "󰽤"
+
     property string kbLayout:   "us"
     property string wifiStatus: "Off"
     property string wifiIcon:   "󰤮"
@@ -27,7 +33,7 @@ Item {
         objects: [Pipewire.defaultAudioSink].filter(n => n)
     }
 
-    readonly property var sinkAudio: Pipewire.defaultAudioSink?.audio ?? null
+    readonly property var sinkAudio: (Pipewire.defaultAudioSink && Pipewire.defaultAudioSink.audio) ? Pipewire.defaultAudioSink.audio : null
     readonly property int volNumber: sinkAudio ? Math.round(sinkAudio.volume * 100) : 0
     property string volPercent: volNumber + "%"
     property bool isMuted: sinkAudio ? sinkAudio.muted : false
@@ -54,12 +60,53 @@ Item {
     MatugenColors { id: theme }
     Caching { id: paths }
 
+    function updateLunarPhase() {
+        // Known reference New Moon epoch: Jan 11, 2024, 11:57:00 UTC (1704974220000 ms)
+        const synodicMonthDays = 29.530588853;
+        const refNewMoonMs = 1704974220000;
+        let diffMs = Date.now() - refNewMoonMs;
+        let diffDays = diffMs / 86400000;
+        let cyclePos = (diffDays % synodicMonthDays) / synodicMonthDays;
+        if (cyclePos < 0) cyclePos += 1.0;
+        root.lunarCyclePos = cyclePos;
+
+        let illum = (1 - Math.cos(cyclePos * 2 * Math.PI)) / 2 * 100;
+        root.lunarIllumination = Math.round(illum);
+
+        if (cyclePos < 0.03 || cyclePos >= 0.97) {
+            root.lunarPhaseName = "New Moon";
+            root.lunarPhaseIcon = "󰽡";
+        } else if (cyclePos < 0.22) {
+            root.lunarPhaseName = "Waxing Crescent";
+            root.lunarPhaseIcon = "󰽢";
+        } else if (cyclePos < 0.28) {
+            root.lunarPhaseName = "First Quarter";
+            root.lunarPhaseIcon = "󰽣";
+        } else if (cyclePos < 0.47) {
+            root.lunarPhaseName = "Waxing Gibbous";
+            root.lunarPhaseIcon = "󰽤";
+        } else if (cyclePos < 0.53) {
+            root.lunarPhaseName = "Full Moon";
+            root.lunarPhaseIcon = "󰽥";
+        } else if (cyclePos < 0.72) {
+            root.lunarPhaseName = "Waning Gibbous";
+            root.lunarPhaseIcon = "󰽦";
+        } else if (cyclePos < 0.78) {
+            root.lunarPhaseName = "Last Quarter";
+            root.lunarPhaseIcon = "󰽧";
+        } else {
+            root.lunarPhaseName = "Waning Crescent";
+            root.lunarPhaseIcon = "󰽨";
+        }
+    }
+
     Timer {
         interval: 1000; running: true; repeat: true; triggeredOnStart: true
         onTriggered: {
             let d = new Date();
             root.timeStr     = Qt.formatDateTime(d, "HH:mm:ss");
             root.fullDateStr = Qt.formatDateTime(d, "dddd, MMMM dd");
+            root.updateLunarPhase();
         }
     }
 

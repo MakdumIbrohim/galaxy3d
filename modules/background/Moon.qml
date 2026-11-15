@@ -61,6 +61,10 @@ PanelWindow {
     property alias weatherTemp: pollers.weatherTemp
     property alias weatherHex: pollers.weatherHex
     property alias detailedWeatherData: pollers.detailedWeatherData
+    property alias lunarCyclePos: pollers.lunarCyclePos
+    property alias lunarIllumination: pollers.lunarIllumination
+    property alias lunarPhaseName: pollers.lunarPhaseName
+    property alias lunarPhaseIcon: pollers.lunarPhaseIcon
 
     property bool weatherRingsActive: false
     property real independentCometAngle: 0
@@ -464,6 +468,9 @@ PanelWindow {
                 centerWidth: worldCenter.width
                 centerHeight: worldCenter.height
                 independentCometAngle: root.independentCometAngle
+                lunarPhaseIcon: root.lunarPhaseIcon
+                lunarPhaseName: root.lunarPhaseName
+                lunarIllumination: root.lunarIllumination
             }
 
             SysInfoSatellite {
