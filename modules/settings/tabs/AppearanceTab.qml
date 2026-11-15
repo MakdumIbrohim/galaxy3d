@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import Quickshell
 import "../../../services"
+import "../components"
 
 ColumnLayout {
     id: root
@@ -461,6 +462,68 @@ ColumnLayout {
                             Quickshell.execDetached(["notify-send", "TopBar Style", "HUD set to " + modelData.name]);
                         }
                     }
+                }
+            }
+        }
+    }
+
+    Rectangle {
+        height: 1
+        Layout.fillWidth: true
+        color: Qt.rgba(root.theme.surface1.r, root.theme.surface1.g, root.theme.surface1.b, 0.3)
+    }
+
+    // Night Light & Solar Cycle Section
+    Rectangle {
+        Layout.fillWidth: true
+        implicitHeight: nightCol.implicitHeight + 24
+        radius: 12
+        color: root.theme.surface0
+        border.color: Qt.rgba(root.theme.surface2.r, root.theme.surface2.g, root.theme.surface2.b, 0.35)
+        border.width: 1
+
+        ColumnLayout {
+            id: nightCol
+            anchors.fill: parent
+            anchors.margins: 14
+            spacing: 10
+
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 12
+
+                Text { text: "󰖔"; font.family: "Iosevka Nerd Font"; font.pixelSize: 20; color: root.theme.peach }
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: 2
+                    Text { text: "Night Light & Solar Warmth Shift"; font.family: "JetBrains Mono"; font.bold: true; font.pixelSize: 11; color: root.theme.text }
+                    Text { text: "Warm display color temperature to reduce blue-light strain (" + ShellBridge.nightLightTemp + "K)"; font.family: "JetBrains Mono"; font.pixelSize: 9; color: root.theme.subtext0 }
+                }
+
+                SciFiSwitch {
+                    checked: ShellBridge.nightLightEnabled
+                    activeColor: root.theme.peach
+                    inactiveColor: root.theme.surface1
+                    borderColor: root.theme.surface2
+                    subtextColor: root.theme.subtext0
+                    onToggled: function(newState) {
+                        ShellBridge.setNightLight(newState, ShellBridge.nightLightTemp);
+                    }
+                }
+            }
+
+            SciFiSlider {
+                visible: ShellBridge.nightLightEnabled
+                Layout.fillWidth: true
+                from: 3000
+                to: 6500
+                value: ShellBridge.nightLightTemp
+                trackColor: root.theme.peach
+                bgTrackColor: root.theme.surface1
+                onMoved: function(val) {
+                    let k = Math.round(val);
+                    ShellBridge.setNightLight(true, k);
                 }
             }
         }
