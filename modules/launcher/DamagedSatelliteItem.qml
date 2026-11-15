@@ -103,6 +103,68 @@ Item {
         transformOrigin: Item.Right
         rotation: -18
         color: Qt.alpha(colors.red, 0.5)
+
+        // Electrical Spark Particles from Fractured Strut
+        Item {
+            anchors.centerIn: parent
+            width: 1; height: 1
+
+            Repeater {
+                model: [
+                    { delay: 0,    dur: 1100, dx: -20, dy: -14, col: colors.peach },
+                    { delay: 350,  dur: 950,  dx: -14, dy: 16,  col: colors.red },
+                    { delay: 700,  dur: 1250, dx: -26, dy: 6,   col: "#ffffff" },
+                    { delay: 1050, dur: 850,  dx: -18, dy: -22, col: colors.yellow }
+                ]
+
+                delegate: Rectangle {
+                    id: sparkDot
+                    width: root.s(2.5)
+                    height: width
+                    radius: width / 2
+                    color: modelData.col
+
+                    SequentialAnimation {
+                        loops: Animation.Infinite
+                        running: root.visible
+
+                        PauseAnimation { duration: modelData.delay }
+
+                        ParallelAnimation {
+                            NumberAnimation {
+                                target: sparkDot
+                                property: "x"
+                                from: 0
+                                to: modelData.dx
+                                duration: modelData.dur
+                                easing.type: Easing.OutQuad
+                            }
+                            NumberAnimation {
+                                target: sparkDot
+                                property: "y"
+                                from: 0
+                                to: modelData.dy
+                                duration: modelData.dur
+                                easing.type: Easing.OutQuad
+                            }
+                            SequentialAnimation {
+                                NumberAnimation { target: sparkDot; property: "opacity"; from: 0.0; to: 1.0; duration: modelData.dur * 0.2 }
+                                NumberAnimation { target: sparkDot; property: "opacity"; from: 1.0; to: 0.0; duration: modelData.dur * 0.8 }
+                            }
+                            NumberAnimation {
+                                target: sparkDot
+                                property: "scale"
+                                from: 1.6
+                                to: 0.2
+                                duration: modelData.dur
+                            }
+                        }
+
+                        PauseAnimation { duration: 600 }
+                    }
+                }
+            }
+        }
     }
 
     // Main Satellite Hull (Distressed / Damaged Frame)
@@ -141,6 +203,7 @@ Item {
 
             // Blinking Warning Beacon on tip
             Rectangle {
+                id: antennaBall
                 width: root._sat_antBall
                 height: root._sat_antBall
                 radius: width / 2
@@ -153,6 +216,39 @@ Item {
                     running: root.visible
                     NumberAnimation { from: 1.0; to: 0.2; duration: 600 }
                     NumberAnimation { from: 0.2; to: 1.0; duration: 600 }
+                }
+
+                // Antenna Spark Discharge
+                Item {
+                    anchors.centerIn: parent
+                    width: 1; height: 1
+                    Repeater {
+                        model: [
+                            { delay: 200, dur: 700, dx: 14, dy: -12, col: colors.red },
+                            { delay: 650, dur: 800, dx: -10, dy: -16, col: "#ffffff" }
+                        ]
+                        delegate: Rectangle {
+                            id: antSpark
+                            width: root.s(2)
+                            height: width
+                            radius: width / 2
+                            color: modelData.col
+                            SequentialAnimation {
+                                loops: Animation.Infinite
+                                running: root.visible
+                                PauseAnimation { duration: modelData.delay }
+                                ParallelAnimation {
+                                    NumberAnimation { target: antSpark; property: "x"; from: 0; to: modelData.dx; duration: modelData.dur; easing.type: Easing.OutQuad }
+                                    NumberAnimation { target: antSpark; property: "y"; from: 0; to: modelData.dy; duration: modelData.dur; easing.type: Easing.OutQuad }
+                                    SequentialAnimation {
+                                        NumberAnimation { target: antSpark; property: "opacity"; from: 0.0; to: 1.0; duration: modelData.dur * 0.2 }
+                                        NumberAnimation { target: antSpark; property: "opacity"; from: 1.0; to: 0.0; duration: modelData.dur * 0.8 }
+                                    }
+                                }
+                                PauseAnimation { duration: 900 }
+                            }
+                        }
+                    }
                 }
             }
         }
