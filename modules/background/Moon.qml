@@ -359,6 +359,11 @@ PanelWindow {
             }
         }
 
+        MeteorField {
+            id: meteorField
+            z: -60000
+        }
+
         Shape {
             id: orbitCurvePath
             anchors.fill: parent
