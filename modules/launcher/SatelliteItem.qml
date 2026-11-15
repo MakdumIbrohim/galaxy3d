@@ -9,6 +9,9 @@ Item {
     property string appIcon: ""
     property real panelDeploy: 1.0
 
+    signal terminalLaunchRequested()
+    signal pinRequested()
+
     MatugenColors { id: colors }
     Scaler { id: scaler; currentWidth: Screen.width }
 
@@ -167,6 +170,58 @@ Item {
                     horizontalAlignment: Text.AlignHCenter
                     elide: Text.ElideRight
                     wrapMode: Text.WordWrap
+                }
+
+                // Micro Quick Actions Row
+                RowLayout {
+                    Layout.alignment: Qt.AlignHCenter
+                    spacing: root.s(8)
+
+                    Rectangle {
+                        width: root.s(26); height: root.s(18); radius: root.s(5)
+                        color: termMa.containsMouse ? Qt.alpha(colors.mauve, 0.3) : Qt.alpha(colors.surface0, 0.7)
+                        border.color: termMa.containsMouse ? colors.mauve : Qt.alpha(colors.surface2, 0.4)
+                        border.width: 1
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: "󰆍"
+                            font.family: "JetBrains Mono Nerd Font, Symbols Nerd Font, monospace"
+                            font.pixelSize: root.s(11)
+                            color: termMa.containsMouse ? colors.mauve : colors.subtext0
+                        }
+
+                        MouseArea {
+                            id: termMa
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.terminalLaunchRequested()
+                        }
+                    }
+
+                    Rectangle {
+                        width: root.s(26); height: root.s(18); radius: root.s(5)
+                        color: pinMa.containsMouse ? Qt.alpha(colors.yellow, 0.3) : Qt.alpha(colors.surface0, 0.7)
+                        border.color: pinMa.containsMouse ? colors.yellow : Qt.alpha(colors.surface2, 0.4)
+                        border.width: 1
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: "󰤱"
+                            font.family: "JetBrains Mono Nerd Font, Symbols Nerd Font, monospace"
+                            font.pixelSize: root.s(11)
+                            color: pinMa.containsMouse ? colors.yellow : colors.subtext0
+                        }
+
+                        MouseArea {
+                            id: pinMa
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.pinRequested()
+                        }
+                    }
                 }
             }
         }

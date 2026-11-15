@@ -657,6 +657,16 @@ Item {
                 appName: window.selectedAppName
                 appIcon: window.selectedAppIcon
                 panelDeploy: selectedSatelliteContainer.satPanelDeploy
+
+                onTerminalLaunchRequested: {
+                    let cleanCmd = (window.selectedAppExec || "").replace(/%[fFuUdDnNickvm]/g, "").trim();
+                    Hyprland.dispatch("exec foot -e " + cleanCmd);
+                    window.closeLauncher();
+                }
+
+                onPinRequested: {
+                    Quickshell.execDetached(["notify-send", "Satellite Telemetry", "Pinned " + window.selectedAppName + " to orbital favorites"]);
+                }
             }
 
             MouseArea {
