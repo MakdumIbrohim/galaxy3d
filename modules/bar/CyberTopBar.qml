@@ -323,20 +323,26 @@ Item {
             spacing: 10
 
             // Volume Section
-            RowLayout {
-                spacing: 5
-                Text {
-                    text: root.volIcon
-                    font.family: "Iosevka Nerd Font"
-                    font.pixelSize: 13
-                    color: root.isMuted ? theme.red : theme.blue
-                }
-                Text {
-                    text: root.volNumber + "%"
-                    font.family: "JetBrains Mono"
-                    font.pixelSize: 11
-                    font.weight: Font.DemiBold
-                    color: theme.text
+            Item {
+                implicitWidth: volRow.implicitWidth
+                implicitHeight: volRow.implicitHeight
+                RowLayout {
+                    id: volRow
+                    anchors.fill: parent
+                    spacing: 5
+                    Text {
+                        text: root.volIcon
+                        font.family: "Iosevka Nerd Font"
+                        font.pixelSize: 13
+                        color: root.isMuted ? theme.red : theme.blue
+                    }
+                    Text {
+                        text: root.volNumber + "%"
+                        font.family: "JetBrains Mono"
+                        font.pixelSize: 11
+                        font.weight: Font.DemiBold
+                        color: theme.text
+                    }
                 }
                 MouseArea {
                     anchors.fill: parent

@@ -39,14 +39,6 @@ PanelWindow {
         }
     }
 
-    FileWatcher {
-        id: wpWatcher
-        path: paths.configDir + "/wallpaper.conf"
-        onFileChanged: {
-            wpReader.running = false;
-            wpReader.running = true;
-        }
-    }
 
     function triggerRandomWallpaper() {
         Quickshell.execDetached(["bash", "-c", "find /usr/share/wallpapers/cachyos-wallpapers/ " + paths.home + "/Pictures/ -type f \\( -name '*.jpg' -o -name '*.png' \\) 2>/dev/null | shuf -n 1 > " + paths.configDir + "/wallpaper.conf"]);
@@ -66,7 +58,7 @@ PanelWindow {
 
     IpcHandler {
         target: "wallpaper"
-        function set(path) {
+        function set(path: string) {
             root.wallpaperPath = path;
             Quickshell.execDetached(["bash", "-c", "echo '" + path + "' > " + paths.configDir + "/wallpaper.conf"]);
         }
