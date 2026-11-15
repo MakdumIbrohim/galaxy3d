@@ -5,10 +5,11 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Services.Notifications
 import "../../theme"
+import "../../services"
 
 PanelWindow {
     id: notifWin
-    visible: server.trackedNotifications.length > 0
+    visible: server.trackedNotifications.length > 0 && !ShellBridge.dndEnabled
 
     anchors {
         top: true

@@ -42,9 +42,34 @@ PanelWindow {
 
     // Wallpaper and audio tracking
     property string currentWallpaper: ""
-    property bool isDarkMode: true
-    property string activeAccent: "Mauve"
+    property bool isDarkMode: ShellBridge.isDarkMode
+    property string activeAccent: ShellBridge.activeAccent
     property real fontScale: 1.0
+    property bool isBtPowered: false
+    property bool isAirplaneMode: false
+
+    Process {
+        id: btStatusPoller
+        running: settingsWindow.visible
+        command: ["bash", "-c", "bluetoothctl show 2>/dev/null | grep -q 'Powered: yes' && echo '1' || echo '0'"]
+        stdout: StdioCollector {
+            onStreamFinished: settingsWindow.isBtPowered = (this.text.trim() === "1")
+        }
+    }
+
+    Process {
+        id: rfkillPoller
+        running: settingsWindow.visible
+        command: ["bash", "-c", "rfkill list all 2>/dev/null | grep -q 'Soft blocked: yes' && echo '1' || echo '0'"]
+        stdout: StdioCollector {
+            onStreamFinished: settingsWindow.isAirplaneMode = (this.text.trim() === "1")
+        }
+    }
+
+    Process {
+        id: updateChecker
+        command: ["bash", "-c", "COUNT=$(checkupdates 2>/dev/null | wc -l) ; if [ \"$COUNT\" -gt 0 ]; then notify-send -u normal -i software-update-available 'System Updates' \"$COUNT packages ready to update\" ; else notify-send -i checkbox-checked 'System Updates' 'System is up to date' ; fi"]
+    }
 
     PwObjectTracker {
         objects: [Pipewire.defaultAudioSink, Pipewire.defaultAudioSource].filter(n => n)
@@ -252,9 +277,9 @@ PanelWindow {
                             spacing: 12
                             Repeater {
                                 model: [
-                                    { "name": "Deep Sky", "file": "wallhaven-1pkq63.jpg" },
-                                    { "name": "Starry Night", "file": "wallhaven-8378y1.jpg" },
-                                    { "name": "CachyOS", "file": "default-wallpaper.png" }
+                                    { "name": "Cosmic Galaxy", "file": "/usr/share/wallpapers/cachyos-wallpapers/cachygalaxy99.jpg" },
+                                    { "name": "Lunar Horizon", "file": "/usr/share/wallpapers/cachyos-wallpapers/CachyOS_Moon.jpg" },
+                                    { "name": "Emerald Space", "file": "/usr/share/wallpapers/cachyos-wallpapers/CachyOS_GreenSpace.png" }
                                 ]
                                 delegate: Rectangle {
                                     width: 140; height: 85; radius: 8
@@ -265,12 +290,12 @@ PanelWindow {
 
                                     Image {
                                         anchors.fill: parent
-                                        source: "file://" + paths.home + "/Pictures/Wallpapers/" + modelData.file
+                                        source: "file://" + modelData.file
                                         fillMode: Image.PreserveAspectCrop
                                     }
                                     Rectangle {
                                         anchors.bottom: parent.bottom; width: parent.width; height: 22
-                                        color: Qt.rgba(0, 0, 0, 0.65)
+                                        color: Qt.rgba(0, 0, 0, 0.7)
                                         Text {
                                             anchors.centerIn: parent; text: modelData.name
                                             font.family: "JetBrains Mono"; font.pixelSize: 9; color: "#fff"
@@ -279,19 +304,29 @@ PanelWindow {
                                     MouseArea {
                                         id: selectWpMa; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                                         onClicked: {
-                                            let fullPath = paths.home + "/Pictures/Wallpapers/" + modelData.file;
-                                            Quickshell.execDetached(["bash", "-c", "echo '" + fullPath + "' > " + paths.configDir + "/wallpaper.conf"]);
+                                            ShellBridge.setWallpaper(modelData.file);
                                             Quickshell.execDetached(["notify-send", "Wallpaper Updated", modelData.name]);
                                         }
                                     }
                                 }
                             }
 
-                            Button {
-                                text: "Random"
-                                contentItem: Text { text: parent.text; font.family: "JetBrains Mono"; font.pixelSize: 11; font.bold: true; color: theme.crust }
-                                background: Rectangle { radius: 8; color: theme.mauve }
-                                onClicked: ShellBridge.randomWallpaper()
+                            ColumnLayout {
+                                spacing: 8
+                                Button {
+                                    text: "Random"
+                                    contentItem: Text { text: parent.text; font.family: "JetBrains Mono"; font.pixelSize: 11; font.bold: true; color: theme.crust }
+                                    background: Rectangle { radius: 8; color: theme.mauve }
+                                    onClicked: ShellBridge.randomWallpaper()
+                                }
+                                Button {
+                                    text: "Custom..."
+                                    contentItem: Text { text: parent.text; font.family: "JetBrains Mono"; font.pixelSize: 11; font.bold: true; color: theme.crust }
+                                    background: Rectangle { radius: 8; color: theme.teal }
+                                    onClicked: {
+                                        Quickshell.execDetached(["bash", "-c", "FILE=$(zenity --file-selection --title='Select Wallpaper' --file-filter='Images | *.jpg *.png *.jpeg *.webp' 2>/dev/null) ; if [ -n \"$FILE\" ]; then echo \"$FILE\" > " + paths.configDir + "/wallpaper.conf ; notify-send 'Wallpaper Updated' \"$FILE\"; fi"]);
+                                    }
+                                }
                             }
                         }
 
@@ -307,13 +342,43 @@ PanelWindow {
                                     spacing: 8
                                     Button {
                                         text: "Dark"
-                                        background: Rectangle { radius: 8; color: theme.base; border.color: theme.mauve; border.width: 1.5 }
-                                        contentItem: Text { text: parent.text; font.family: "JetBrains Mono"; font.pixelSize: 11; color: theme.text }
+                                        background: Rectangle {
+                                            radius: 8
+                                            color: ShellBridge.isDarkMode ? theme.surface1 : theme.base
+                                            border.color: ShellBridge.isDarkMode ? theme.mauve : theme.surface2
+                                            border.width: ShellBridge.isDarkMode ? 2 : 1
+                                        }
+                                        contentItem: Text {
+                                            text: parent.text
+                                            font.family: "JetBrains Mono"
+                                            font.weight: ShellBridge.isDarkMode ? Font.Bold : Font.Normal
+                                            font.pixelSize: 11
+                                            color: ShellBridge.isDarkMode ? theme.mauve : theme.subtext0
+                                        }
+                                        onClicked: {
+                                            ShellBridge.setDarkMode(true);
+                                            Quickshell.execDetached(["notify-send", "Theme Mode", "Switched to Dark Theme"]);
+                                        }
                                     }
                                     Button {
                                         text: "Light"
-                                        background: Rectangle { radius: 8; color: theme.surface0; border.color: theme.surface2; border.width: 1 }
-                                        contentItem: Text { text: parent.text; font.family: "JetBrains Mono"; font.pixelSize: 11; color: theme.subtext0 }
+                                        background: Rectangle {
+                                            radius: 8
+                                            color: !ShellBridge.isDarkMode ? theme.surface1 : theme.surface0
+                                            border.color: !ShellBridge.isDarkMode ? theme.mauve : theme.surface2
+                                            border.width: !ShellBridge.isDarkMode ? 2 : 1
+                                        }
+                                        contentItem: Text {
+                                            text: parent.text
+                                            font.family: "JetBrains Mono"
+                                            font.weight: !ShellBridge.isDarkMode ? Font.Bold : Font.Normal
+                                            font.pixelSize: 11
+                                            color: !ShellBridge.isDarkMode ? theme.mauve : theme.subtext0
+                                        }
+                                        onClicked: {
+                                            ShellBridge.setDarkMode(false);
+                                            Quickshell.execDetached(["notify-send", "Theme Mode", "Switched to Light Theme"]);
+                                        }
                                     }
                                 }
                             }
@@ -331,16 +396,20 @@ PanelWindow {
                                             { "name": "Green", "col": theme.green }
                                         ]
                                         delegate: Rectangle {
-                                            width: 24; height: 24; radius: 12; color: modelData.col
-                                            border.color: "#ffffff"; border.width: swatchMa.containsMouse || settingsWindow.activeAccent === modelData.name ? 2 : 0
+                                            readonly property bool isSelected: ShellBridge.activeAccent.toLowerCase() === modelData.name.toLowerCase()
+                                            width: 26; height: 26; radius: 13; color: modelData.col
+                                            border.color: "#ffffff"
+                                            border.width: isSelected ? 2.5 : (swatchMa.containsMouse ? 1.5 : 0)
+                                            scale: isSelected ? 1.15 : 1.0
+                                            Behavior on scale { NumberAnimation { duration: 150 } }
+
                                             MouseArea {
                                                 id: swatchMa
                                                 anchors.fill: parent
                                                 hoverEnabled: true
                                                 cursorShape: Qt.PointingHandCursor
                                                 onClicked: {
-                                                    settingsWindow.activeAccent = modelData.name;
-                                                    Quickshell.execDetached(["bash", "-c", "echo '" + modelData.name + "' > " + paths.configDir + "/accent.conf"]);
+                                                    ShellBridge.setAccent(modelData.name);
                                                     Quickshell.execDetached(["notify-send", "Accent Color", "System accent changed to " + modelData.name]);
                                                 }
                                             }
@@ -450,8 +519,12 @@ PanelWindow {
                                 anchors.fill: parent; anchors.margins: 12
                                 Text { text: "Airplane Mode"; font.family: "JetBrains Mono"; font.pixelSize: 12; color: theme.text; Layout.fillWidth: true }
                                 Switch {
-                                    checked: false
-                                    onToggled: Quickshell.execDetached(["rfkill", checked ? "block" : "unblock", "all"])
+                                    checked: settingsWindow.isAirplaneMode
+                                    onToggled: {
+                                        settingsWindow.isAirplaneMode = checked;
+                                        Quickshell.execDetached(["rfkill", checked ? "block" : "unblock", "all"]);
+                                        Quickshell.execDetached(["notify-send", "Airplane Mode", checked ? "All Radios Blocked" : "Radios Restored"]);
+                                    }
                                 }
                             }
                         }
@@ -511,7 +584,13 @@ PanelWindow {
                                     Text { text: "Do Not Disturb (DND)"; font.family: "JetBrains Mono"; font.bold: true; font.pixelSize: 12; color: theme.text }
                                     Text { text: "Mute all desktop notification popups"; font.family: "JetBrains Mono"; font.pixelSize: 10; color: theme.subtext0 }
                                 }
-                                Switch { checked: false }
+                                Switch {
+                                    checked: ShellBridge.dndEnabled
+                                    onToggled: {
+                                        ShellBridge.setDnd(checked);
+                                        Quickshell.execDetached(["notify-send", "Notifications", checked ? "Do Not Disturb Activated" : "Do Not Disturb Deactivated"]);
+                                    }
+                                }
                             }
                         }
                     }
@@ -528,8 +607,12 @@ PanelWindow {
                                 anchors.fill: parent; anchors.margins: 12
                                 Text { text: "Bluetooth Power"; font.family: "JetBrains Mono"; font.bold: true; font.pixelSize: 12; color: theme.text; Layout.fillWidth: true }
                                 Switch {
-                                    checked: false
-                                    onToggled: Quickshell.execDetached(["bluetoothctl", "power", checked ? "on" : "off"])
+                                    checked: settingsWindow.isBtPowered
+                                    onToggled: {
+                                        settingsWindow.isBtPowered = checked;
+                                        Quickshell.execDetached(["bluetoothctl", "power", checked ? "on" : "off"]);
+                                        Quickshell.execDetached(["notify-send", "Bluetooth", checked ? "Bluetooth Enabled" : "Bluetooth Disabled"]);
+                                    }
                                 }
                             }
                         }
@@ -594,7 +677,11 @@ PanelWindow {
                             text: "Check for System Updates"
                             contentItem: Text { text: parent.text; font.family: "JetBrains Mono"; font.pixelSize: 11; font.bold: true; color: theme.crust }
                             background: Rectangle { radius: 8; color: theme.teal }
-                            onClicked: Quickshell.execDetached(["notify-send", "Updates", "Your system is up to date."])
+                            onClicked: {
+                                Quickshell.execDetached(["notify-send", "System Updates", "Checking package repositories..."]);
+                                updateChecker.running = false;
+                                updateChecker.running = true;
+                            }
                         }
                     }
                 }
